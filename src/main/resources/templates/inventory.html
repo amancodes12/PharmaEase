@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventory - PharmaEase</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .navbar {
+            background: #667eea;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h1 { font-size: 24px; }
+        .navbar nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+        }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover { background: #5568d3; }
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background: #f9f9f9;
+            font-weight: 600;
+            color: #333;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-normal { background: #d4edda; color: #155724; }
+        .status-low { background: #fff3cd; color: #856404; }
+        .status-out { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <h1>💊 PharmaEase</h1>
+    <nav>
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <a th:href="@{/medicines}">Medicines</a>
+        <a th:href="@{/suppliers}">Suppliers</a>
+        <a th:href="@{/inventory}">Inventory</a>
+        <a th:href="@{/orders}">Orders</a>
+        <a th:href="@{/billing}">Billing</a>
+        <a th:href="@{/reports}">Reports</a>
+        <a th:href="@{/logout}">Logout</a>
+    </nav>
+</nav>
+
+<div class="container">
+    <div class="header">
+        <h2 th:text="${pageTitle}">All Inventory</h2>
+        <a th:href="@{/batches/new}" class="btn">+ Add Stock Batch</a>
+    </div>
+
+    <div class="filters">
+        <a th:href="@{/inventory}" class="btn">All Items</a>
+        <a th:href="@{/inventory(filter='low-stock')}" class="btn">Low Stock</a>
+        <a th:href="@{/inventory(filter='out-of-stock')}" class="btn">Out of Stock</a>
+        <a th:href="@{/inventory/alerts}" class="btn">View Alerts</a>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>Medicine</th>
+                <th>Category</th>
+                <th>Total Quantity</th>
+                <th>Available</th>
+                <th>Reserved</th>
+                <th>Reorder Level</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${inventory}">
+                <td th:text="${item.medicine.name}">Medicine Name</td>
+                <td th:text="${item.medicine.category}">Category</td>
+                <td th:text="${item.totalQuantity}">0</td>
+                <td th:text="${item.availableQuantity}">0</td>
+                <td th:text="${item.reservedQuantity}">0</td>
+                <td th:text="${item.medicine.reorderLevel}">0</td>
+                <td>
+                    <span th:if="${item.availableQuantity == 0}" class="status-badge status-out">OUT OF STOCK</span>
+                    <span th:if="${item.lowStock && item.availableQuantity > 0}" class="status-badge status-low">LOW STOCK</span>
+                    <span th:if="${!item.lowStock && item.availableQuantity > 0}" class="status-badge status-normal">NORMAL</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

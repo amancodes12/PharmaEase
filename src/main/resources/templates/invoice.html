@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice - PharmaEase</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; padding: 20px; }
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+        }
+        .invoice-header h1 { color: #667eea; font-size: 36px; }
+        .invoice-info { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+        .info-section h3 { color: #333; margin-bottom: 10px; }
+        .info-section p { margin: 5px 0; color: #666; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: #f9f9f9; font-weight: 600; }
+        .totals { margin-top: 20px; text-align: right; }
+        .totals div { margin: 10px 0; }
+        .total-amount { font-size: 24px; font-weight: bold; color: #667eea; margin-top: 15px; padding-top: 15px; border-top: 2px solid #667eea; }
+        .btn { padding: 12px 25px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; text-decoration: none; display: inline-block; }
+        .actions { text-align: center; margin-top: 30px; }
+        @media print {
+            .actions { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="invoice-container">
+    <div class="invoice-header">
+        <h1>💊 PharmaEase</h1>
+        <p>Pharmacy Management System</p>
+        <h2>INVOICE</h2>
+    </div>
+
+    <div class="invoice-info">
+        <div class="info-section">
+            <h3>Invoice Details</h3>
+            <p><strong>Invoice Number:</strong> <span th:text="${invoice.invoiceNumber}">INV-001</span></p>
+            <p><strong>Order Number:</strong> <span th:text="${order.orderNumber}">ORD-001</span></p>
+            <p><strong>Date:</strong> <span th:text="${#temporals.format(invoice.generatedAt, 'yyyy-MM-dd HH:mm')}">Date</span></p>
+        </div>
+
+        <div class="info-section">
+            <h3>Customer Details</h3>
+            <p><strong>Name:</strong> <span th:text="${order.customer != null ? order.customer.name : 'Walk-in Customer'}">Name</span></p>
+            <p th:if="${order.customer != null}"><strong>Phone:</strong> <span th:text="${order.customer.phone}">Phone</span></p>
+            <p><strong>Served By:</strong> <span th:text="${order.pharmacist.name}">Pharmacist</span></p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Medicine</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${order.orderItems}">
+            <td th:text="${item.medicine.name}">Medicine</td>
+            <td th:text="${item.quantity}">1</td>
+            <td>$<span th:text="${item.unitPrice}">0.00</span></td>
+            <td>$<span th:text="${item.totalPrice}">0.00</span></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <div><strong>Subtotal:</strong> $<span th:text="${order.subtotal}">0.00</span></div>
+        <div><strong>Tax:</strong> $<span th:text="${order.tax}">0.00</span></div>
+        <div><strong>Discount:</strong> $<span th:text="${order.discount}">0.00</span></div>
+        <div class="total-amount"><strong>Total Amount:</strong> $<span th:text="${order.totalAmount}">0.00</span></div>
+        <div><strong>Amount Paid:</strong> $<span th:text="${invoice.amountPaid}">0.00</span></div>
+        <div><strong>Change:</strong> $<span th:text="${invoice.changeGiven}">0.00</span></div>
+    </div>
+
+    <div class="actions">
+        <button onclick="window.print()" class="btn">Print Invoice</button>
+        <a th:href="@{/orders}" class="btn">Back to Orders</a>
+        <a th:href="@{/billing}" class="btn">New Sale</a>
+    </div>
+</div>
+</body>
+</html>

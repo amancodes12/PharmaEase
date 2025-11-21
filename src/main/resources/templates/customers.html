@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Customers - PharmaEase</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .navbar { background: #667eea; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar h1 { font-size: 24px; }
+        .navbar nav a { color: white; text-decoration: none; margin: 0 15px; font-weight: 500; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn { padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; }
+        .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-bar input { flex: 1; padding: 10px; border: 2px solid #e0e0e0; border-radius: 5px; }
+        .table-container { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: #f9f9f9; font-weight: 600; }
+        .actions a { padding: 5px 10px; border-radius: 3px; text-decoration: none; font-size: 14px; margin-right: 5px; }
+        .btn-edit { background: #2196f3; color: white; }
+        .btn-delete { background: #f44336; color: white; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <h1>💊 PharmaEase</h1>
+    <nav>
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <a th:href="@{/medicines}">Medicines</a>
+        <a th:href="@{/suppliers}">Suppliers</a>
+        <a th:href="@{/inventory}">Inventory</a>
+        <a th:href="@{/orders}">Orders</a>
+        <a th:href="@{/billing}">Billing</a>
+        <a th:href="@{/reports}">Reports</a>
+        <a th:href="@{/logout}">Logout</a>
+    </nav>
+</nav>
+
+<div class="container">
+    <div class="header">
+        <h2>Customers</h2>
+        <a th:href="@{/customers/new}" class="btn">+ Add Customer</a>
+    </div>
+
+    <div class="search-bar">
+        <form th:action="@{/customers}" method="get" style="display: flex; gap: 10px; width: 100%;">
+            <input type="text" name="search" placeholder="Search customers...">
+            <button type="submit" class="btn">Search</button>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>ID Number</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="customer : ${customers}">
+                <td th:text="${customer.name}">Name</td>
+                <td th:text="${customer.email}">Email</td>
+                <td th:text="${customer.phone}">Phone</td>
+                <td th:text="${customer.idNumber}">ID</td>
+                <td class="actions">
+                    <a th:href="@{/customers/edit/{id}(id=${customer.id})}" class="btn-edit">Edit</a>
+                    <a th:href="@{/customers/delete/{id}(id=${customer.id})}"
+                       class="btn-delete"
+                       onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

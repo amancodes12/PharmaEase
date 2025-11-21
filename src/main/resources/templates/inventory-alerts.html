@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventory Alerts - PharmaEase</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .navbar { background: #667eea; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar h1 { font-size: 24px; }
+        .navbar nav a { color: white; text-decoration: none; margin: 0 15px; font-weight: 500; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .alert-section { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .alert-section h2 { margin-bottom: 20px; color: #333; border-left: 4px solid #ff9800; padding-left: 15px; }
+        .alert-section.critical h2 { border-left-color: #f44336; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: #f9f9f9; font-weight: 600; }
+        .status-badge { padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: 600; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        .badge-critical { background: #dc3545; color: white; }
+        .no-alerts { text-align: center; padding: 40px; color: #666; }
+        .no-alerts i { font-size: 48px; margin-bottom: 10px; display: block; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <h1>💊 PharmaEase</h1>
+    <nav>
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <a th:href="@{/medicines}">Medicines</a>
+        <a th:href="@{/suppliers}">Suppliers</a>
+        <a th:href="@{/inventory}">Inventory</a>
+        <a th:href="@{/orders}">Orders</a>
+        <a th:href="@{/billing}">Billing</a>
+        <a th:href="@{/reports}">Reports</a>
+        <a th:href="@{/logout}">Logout</a>
+    </nav>
+</nav>
+
+<div class="container">
+    <h1 style="margin-bottom: 20px; color: #333;">⚠️ Inventory Alerts</h1>
+
+    <!-- Low Stock Section -->
+    <div class="alert-section">
+        <h2>🔴 Low Stock Items</h2>
+        <div th:if="${lowStock != null and !lowStock.isEmpty()}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Medicine</th>
+                    <th>Category</th>
+                    <th>Available Quantity</th>
+                    <th>Reorder Level</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${lowStock}">
+                    <td th:text="${item.medicine.name}">Medicine</td>
+                    <td th:text="${item.medicine.category}">Category</td>
+                    <td th:text="${item.availableQuantity}">0</td>
+                    <td th:text="${item.medicine.reorderLevel}">0</td>
+                    <td>
+                        <span th:if="${item.availableQuantity == 0}" class="status-badge badge-critical">OUT OF STOCK</span>
+                        <span th:if="${item.availableQuantity > 0}" class="status-badge badge-warning">LOW STOCK</span>
+                    </td>
+                    <td>
+                        <a th:href="@{/batches/new}" style="color: #667eea; text-decoration: none;">📦 Add Stock</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:if="${lowStock == null or lowStock.isEmpty()}" class="no-alerts">
+            <i>✅</i>
+            <p>All items are adequately stocked!</p>
+        </div>
+    </div>
+
+    <!-- Expiring Batches Section -->
+    <div class="alert-section critical">
+        <h2>⏰ Expiring Stock (Next 30 Days)</h2>
+        <div th:if="${expiringBatches != null and !expiringBatches.isEmpty()}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Batch Number</th>
+                    <th>Medicine</th>
+                    <th>Remaining Quantity</th>
+                    <th>Expiry Date</th>
+                    <th>Days Until Expiry</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="batch : ${expiringBatches}">
+                    <td th:text="${batch.batchNumber}">Batch</td>
+                    <td th:text="${batch.medicine.name}">Medicine</td>
+                    <td th:text="${batch.remainingQuantity}">0</td>
+                    <td th:text="${batch.expiryDate}">Date</td>
+                    <td th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(T(java.time.LocalDate).now(), batch.expiryDate)} + ' days'">Days</td>
+                    <td>
+                        <span class="status-badge badge-danger">EXPIRING SOON</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:if="${expiringBatches == null or expiringBatches.isEmpty()}" class="no-alerts">
+            <i>✅</i>
+            <p>No batches expiring in the next 30 days!</p>
+        </div>
+    </div>
+
+    <!-- Expired Batches Section -->
+    <div class="alert-section critical">
+        <h2>❌ Expired Stock</h2>
+        <div th:if="${expiredBatches != null and !expiredBatches.isEmpty()}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Batch Number</th>
+                    <th>Medicine</th>
+                    <th>Remaining Quantity</th>
+                    <th>Expiry Date</th>
+                    <th>Days Expired</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="batch : ${expiredBatches}">
+                    <td th:text="${batch.batchNumber}">Batch</td>
+                    <td th:text="${batch.medicine.name}">Medicine</td>
+                    <td th:text="${batch.remainingQuantity}">0</td>
+                    <td th:text="${batch.expiryDate}">Date</td>
+                    <td th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(batch.expiryDate, T(java.time.LocalDate).now())} + ' days ago'">Days</td>
+                    <td>
+                        <a th:href="@{/batches/delete/{id}(id=${batch.id})}"
+                           style="color: #f44336; text-decoration: none;"
+                           onclick="return confirm('Remove this expired batch?')">🗑️ Remove</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:if="${expiredBatches == null or expiredBatches.isEmpty()}" class="no-alerts">
+            <i>✅</i>
+            <p>No expired batches found!</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

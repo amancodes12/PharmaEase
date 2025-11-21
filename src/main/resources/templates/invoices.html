@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoices - PharmaEase</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .navbar { background: #667eea; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar h1 { font-size: 24px; }
+        .navbar nav a { color: white; text-decoration: none; margin: 0 15px; font-weight: 500; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn { padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; }
+        .table-container { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: #f9f9f9; font-weight: 600; }
+        .btn-view { background: #2196f3; color: white; padding: 5px 10px; border-radius: 3px; text-decoration: none; font-size: 14px; }
+        .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-bar input { flex: 1; padding: 10px; border: 2px solid #e0e0e0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <h1>💊 PharmaEase</h1>
+    <nav>
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <a th:href="@{/medicines}">Medicines</a>
+        <a th:href="@{/suppliers}">Suppliers</a>
+        <a th:href="@{/inventory}">Inventory</a>
+        <a th:href="@{/orders}">Orders</a>
+        <a th:href="@{/billing}">Billing</a>
+        <a th:href="@{/reports}">Reports</a>
+        <a th:href="@{/logout}">Logout</a>
+    </nav>
+</nav>
+
+<div class="container">
+    <div class="header">
+        <h2>📄 Invoices</h2>
+        <a th:href="@{/billing}" class="btn">+ New Sale</a>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>Invoice Number</th>
+                <th>Order Number</th>
+                <th>Customer</th>
+                <th>Total Amount</th>
+                <th>Amount Paid</th>
+                <th>Change Given</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="invoice : ${invoices}">
+                <td th:text="${invoice.invoiceNumber}">INV-001</td>
+                <td th:text="${invoice.order.orderNumber}">ORD-001</td>
+                <td th:text="${invoice.order.customer != null ? invoice.order.customer.name : 'Walk-in'}">Customer</td>
+                <td>$<span th:text="${invoice.order.totalAmount}">0.00</span></td>
+                <td>$<span th:text="${invoice.amountPaid}">0.00</span></td>
+                <td>$<span th:text="${invoice.changeGiven}">0.00</span></td>
+                <td th:text="${#temporals.format(invoice.generatedAt, 'yyyy-MM-dd HH:mm')}">Date</td>
+                <td>
+                    <a th:href="@{/billing/invoice/{orderId}(orderId=${invoice.order.id})}" class="btn-view">View</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

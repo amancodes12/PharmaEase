@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Medicine Form - PharmaEase</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .navbar {
+            background: #667eea;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h1 { font-size: 24px; }
+        .navbar nav a { color: white; text-decoration: none; margin: 0 15px; font-weight: 500; }
+        .container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-card h2 { margin-bottom: 25px; color: #333; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #333; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; }
+        .checkbox-group input { width: auto; }
+        .btn { padding: 12px 25px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; }
+        .btn:hover { background: #5568d3; }
+        .btn-secondary { background: #6c757d; margin-left: 10px; }
+        .btn-secondary:hover { background: #5a6268; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <h1>💊 PharmaEase</h1>
+    <nav>
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <a th:href="@{/medicines}">Medicines</a>
+        <a th:href="@{/logout}">Logout</a>
+    </nav>
+</nav>
+
+<div class="container">
+    <div class="form-card">
+        <h2 th:text="${medicine.id == null ? 'Add New Medicine' : 'Edit Medicine'}">Medicine Form</h2>
+
+        <form th:action="@{/medicines/save}" th:object="${medicine}" method="post">
+            <input type="hidden" th:field="*{id}">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Medicine Name *</label>
+                    <input type="text" id="name" th:field="*{name}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="genericName">Generic Name</label>
+                    <input type="text" id="genericName" th:field="*{genericName}">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="manufacturer">Manufacturer</label>
+                    <input type="text" id="manufacturer" th:field="*{manufacturer}">
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" th:field="*{category}">
+                        <option value="">Select Category</option>
+                        <option value="Analgesics">Analgesics</option>
+                        <option value="Antibiotics">Antibiotics</option>
+                        <option value="Antacids">Antacids</option>
+                        <option value="Vitamins">Vitamins</option>
+                        <option value="Cardiovascular">Cardiovascular</option>
+                        <option value="Respiratory">Respiratory</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dosageForm">Dosage Form</label>
+                    <select id="dosageForm" th:field="*{dosageForm}">
+                        <option value="">Select Form</option>
+                        <option value="Tablet">Tablet</option>
+                        <option value="Capsule">Capsule</option>
+                        <option value="Syrup">Syrup</option>
+                        <option value="Injection">Injection</option>
+                        <option value="Cream">Cream</option>
+                        <option value="Drops">Drops</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="strength">Strength</label>
+                    <input type="text" id="strength" th:field="*{strength}" placeholder="e.g., 500mg">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" th:field="*{description}"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="unitPrice">Unit Price ($) *</label>
+                    <input type="number" step="0.01" id="unitPrice" th:field="*{unitPrice}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="sellingPrice">Selling Price ($) *</label>
+                    <input type="number" step="0.01" id="sellingPrice" th:field="*{sellingPrice}" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="reorderLevel">Reorder Level *</label>
+                    <input type="number" id="reorderLevel" th:field="*{reorderLevel}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="supplier">Supplier</label>
+                    <select id="supplier" th:field="*{supplier.id}">
+                        <option value="">Select Supplier</option>
+                        <option th:each="supplier : ${suppliers}"
+                                th:value="${supplier.id}"
+                                th:text="${supplier.name}">Supplier</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="requiresPrescription" th:field="*{requiresPrescription}">
+                <label for="requiresPrescription" style="margin-bottom: 0;">Requires Prescription</label>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="active" th:field="*{active}">
+                <label for="active" style="margin-bottom: 0;">Active</label>
+            </div>
+
+            <button type="submit" class="btn">Save Medicine</button>
+            <a th:href="@{/medicines}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+</body>
+</html>
