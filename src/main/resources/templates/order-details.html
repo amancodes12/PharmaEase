@@ -102,17 +102,17 @@
             <tr th:each="item : ${order.orderItems}">
                 <td th:text="${item.medicine.name}">Medicine Name</td>
                 <td th:text="${item.quantity}">1</td>
-                <td>$<span th:text="${item.unitPrice}">0.00</span></td>
-                <td>$<span th:text="${item.totalPrice}">0.00</span></td>
+                <td>₹<span th:text="${item.unitPrice}">0.00</span></td>
+                <td>₹<span th:text="${item.totalPrice}">0.00</span></td>
             </tr>
             </tbody>
         </table>
 
         <div class="totals">
-            <div><strong>Subtotal:</strong> $<span th:text="${order.subtotal}">0.00</span></div>
-            <div><strong>Tax:</strong> $<span th:text="${order.tax}">0.00</span></div>
-            <div><strong>Discount:</strong> $<span th:text="${order.discount}">0.00</span></div>
-            <div class="total-amount"><strong>Total Amount:</strong> $<span th:text="${order.totalAmount}">0.00</span></div>
+            <div><strong>Subtotal:</strong> ₹<span th:text="${order.subtotal}">0.00</span></div>
+            <div><strong>Tax:</strong> ₹<span th:text="${order.tax}">0.00</span></div>
+            <div><strong>Discount:</strong> ₹<span th:text="${order.discount}">0.00</span></div>
+            <div class="total-amount"><strong>Total Amount:</strong> ₹<span th:text="${order.totalAmount}">0.00</span></div>
         </div>
     </div>
 

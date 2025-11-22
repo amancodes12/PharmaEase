@@ -71,7 +71,7 @@
                 <td th:text="${order.orderNumber}">Order#</td>
                 <td th:text="${order.customer != null ? order.customer.name : 'Walk-in'}">Customer</td>
                 <td th:text="${order.pharmacist.name}">Pharmacist</td>
-                <td>$<span th:text="${order.totalAmount}">0.00</span></td>
+                <td>₹<span th:text="${order.totalAmount}">0.00</span></td>
                 <td th:text="${order.paymentMethod}">Method</td>
                 <td>
                     <span th:if="${order.status.name() == 'PENDING'}" class="status-badge status-pending">PENDING</span>

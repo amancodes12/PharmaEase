@@ -20,6 +20,6 @@ public class DashboardController {
     public String dashboard(Model model) {
         Map<String, Object> stats = reportService.getDashboardStatistics();
         model.addAttribute("stats", stats);
-        return "dashboard";
+        return "dashboards";
     }
 }
