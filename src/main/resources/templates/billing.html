@@ -39,9 +39,7 @@
             border-bottom: 2px solid #667eea;
             padding-bottom: 10px;
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
+        .form-group { margin-bottom: 15px; }
         .form-group label {
             display: block;
             margin-bottom: 5px;
@@ -64,20 +62,14 @@
             font-weight: 600;
         }
         .btn:hover { background: #5568d3; }
-        .btn-success {
-            background: #4caf50;
-        }
-        .btn-success:hover {
-            background: #45a049;
-        }
-        .items-list {
-            margin-top: 20px;
-        }
+        .btn-success { background: #4caf50; }
+        .btn-success:hover { background: #45a049; }
+        .items-list { margin-top: 20px; }
         .item-row {
             display: grid;
             grid-template-columns: 3fr 1fr 1fr 50px;
             gap: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             align-items: end;
         }
         .btn-remove {
@@ -109,9 +101,11 @@
         }
     </style>
 </head>
+
 <body>
+
 <nav class="navbar">
-    <h1>💊 PharmaEase</h1>
+    <h1>PharmaEase</h1>
     <nav>
         <a th:href="@{/dashboard}">Dashboard</a>
         <a th:href="@{/medicines}">Medicines</a>
@@ -129,20 +123,27 @@
 
     <form th:action="@{/billing/create-order}" method="post">
         <div class="billing-grid">
+
+            <!-- LEFT SIDE: CUSTOMER + ORDER ITEMS -->
             <div class="card">
                 <h3>Customer Information</h3>
+
                 <div class="form-group">
                     <label>Customer (Optional)</label>
                     <select name="customerId">
                         <option value="">Walk-in Customer</option>
                         <option th:each="customer : ${customers}"
                                 th:value="${customer.id}"
-                                th:text="${customer.name}">Customer Name</option>
+                                th:text="${customer.name}">
+                        </option>
                     </select>
                 </div>
 
-                <h3 style="margin-top: 30px;">Order Items</h3>
+                <h3 style="margin-top: 25px;">Order Items</h3>
+
                 <div id="itemsList" class="items-list">
+
+                    <!-- FIRST ITEM ROW -->
                     <div class="item-row">
                         <div class="form-group">
                             <label>Medicine</label>
@@ -150,25 +151,31 @@
                                 <option value="">Select Medicine</option>
                                 <option th:each="medicine : ${medicines}"
                                         th:value="${medicine.id}"
-                                        th:text="${medicine.name + ' (' + medicine.strength + ')'}">Medicine</option>
+                                        th:text="${medicine.name + ' (' + medicine.strength + ')'}"></option>
                             </select>
                         </div>
+
                         <div class="form-group">
-                            <label>Quantity</label>
+                            <label>Qty</label>
                             <input type="number" name="orderItems[0].quantity" min="1" required>
                         </div>
+
                         <div class="form-group">
                             <label>Unit Price</label>
                             <input type="number" step="0.01" name="orderItems[0].unitPrice" required>
                         </div>
+
                         <button type="button" class="btn-remove" onclick="removeItem(this)">✕</button>
                     </div>
                 </div>
+
                 <button type="button" class="btn" onclick="addItem()">+ Add Item</button>
             </div>
 
+            <!-- RIGHT SIDE: PAYMENT -->
             <div class="card">
                 <h3>Payment Details</h3>
+
                 <div class="form-group">
                     <label>Payment Method</label>
                     <select name="paymentMethod">
@@ -207,32 +214,48 @@
                     Complete Sale
                 </button>
             </div>
+
         </div>
     </form>
 </div>
+
+
+<!-- HIDDEN TEMPLATE FOR JS -->
+<div id="medicineOptionsTemplate" style="display:none;">
+    <option value="">Select Medicine</option>
+    <option th:each="medicine : ${medicines}"
+            th:value="${medicine.id}"
+            th:text="${medicine.name + ' (' + medicine.strength + ')'}"></option>
+</div>
+
 
 <script>
     let itemCount = 1;
 
     function addItem() {
         const itemsList = document.getElementById('itemsList');
+        const medicineOptions = document.getElementById('medicineOptionsTemplate').innerHTML;
+
         const newItem = document.createElement('div');
         newItem.className = 'item-row';
         newItem.innerHTML = `
             <div class="form-group">
+                <label>Medicine</label>
                 <select name="orderItems[${itemCount}].medicine.id" required>
-                    <option value="">Select Medicine</option>
-                    <option th:each="medicine : ${medicines}"
-                            th:value="${medicine.id}"
-                            th:text="${medicine.name}">Medicine</option>
+                    ${medicineOptions}
                 </select>
             </div>
+
             <div class="form-group">
+                <label>Qty</label>
                 <input type="number" name="orderItems[${itemCount}].quantity" min="1" required>
             </div>
+
             <div class="form-group">
+                <label>Unit Price</label>
                 <input type="number" step="0.01" name="orderItems[${itemCount}].unitPrice" required>
             </div>
+
             <button type="button" class="btn-remove" onclick="removeItem(this)">✕</button>
         `;
         itemsList.appendChild(newItem);
@@ -244,6 +267,55 @@
             button.closest('.item-row').remove();
         }
     }
+
+        // Trigger calculation whenever inputs change
+        document.addEventListener("input", function (e) {
+        if (
+        e.target.name.includes("quantity") ||
+        e.target.name.includes("unitPrice") ||
+        e.target.name === "discount"
+        ) {
+        calculateTotals();
+    }
+    });
+
+        function calculateTotals() {
+        let subtotal = 0.0;
+
+        // Loop through all item rows
+        document.querySelectorAll(".item-row").forEach((row) => {
+        const qtyInput = row.querySelector('input[name*="quantity"]');
+        const priceInput = row.querySelector('input[name*="unitPrice"]');
+
+        const quantity = parseFloat(qtyInput.value) || 0;
+        const unitPrice = parseFloat(priceInput.value) || 0;
+
+        subtotal += quantity * unitPrice;
+    });
+
+        // Tax = 5%
+        const tax = subtotal * 0.05;
+
+        // Discount
+        const discountValue = parseFloat(
+        document.querySelector('input[name="discount"]').value
+        ) || 0;
+
+        // Ensure discount is not more than subtotal
+        const discount = Math.min(discountValue, subtotal);
+
+        // Final total
+        const total = subtotal + tax - discount;
+
+        // Update UI
+        document.getElementById("subtotal").innerText = "₹" + subtotal.toFixed(2);
+        document.getElementById("tax").innerText = "₹" + tax.toFixed(2);
+        document.getElementById("discount").innerText = "₹" + discount.toFixed(2);
+        document.getElementById("total").innerText = "₹" + total.toFixed(2);
+    }
+
+
 </script>
+
 </body>
 </html>
