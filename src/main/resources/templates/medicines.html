@@ -150,8 +150,8 @@
                 <td th:text="${medicine.genericName}">Generic Name</td>
                 <td th:text="${medicine.category}">Category</td>
                 <td th:text="${medicine.strength}">Strength</td>
-                <td>$<span th:text="${medicine.unitPrice}">0.00</span></td>
-                <td>$<span th:text="${medicine.sellingPrice}">0.00</span></td>
+                <td>₹<span th:text="${medicine.unitPrice}">0.00</span></td>
+                <td>₹<span th:text="${medicine.sellingPrice}">0.00</span></td>
                 <td th:text="${medicine.supplier != null ? medicine.supplier.name : 'N/A'}">Supplier</td>
                 <td class="actions">
                     <a th:href="@{/medicines/edit/{id}(id=${medicine.id})}" class="btn-edit">Edit</a>
