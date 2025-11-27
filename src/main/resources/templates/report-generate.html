@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Generate Report - PharmaEase</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .navbar { background: #667eea; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar h1 { font-size: 24px; }
+        .navbar nav a { color: white; text-decoration: none; margin: 0 15px; font-weight: 500; }
+        .container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .card h3 { margin-bottom: 20px; color: #333; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #333; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 5px; font-size: 14px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .btn { padding: 12px 25px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; width: 100%; }
+        .btn:hover { background: #5568d3; }
+        .report-type-card { padding: 15px; background: #f9f9f9; border-radius: 5px; margin-bottom: 10px; cursor: pointer; border: 2px solid transparent; transition: all 0.3s; }
+        .report-type-card:hover { border-color: #667eea; background: #f0f0ff; }
+        .report-type-card input { margin-right: 10px; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <h1>💊 PharmaEase</h1>
+    <nav>
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <a th:href="@{/medicines}">Medicines</a>
+        <a th:href="@{/suppliers}">Suppliers</a>
+        <a th:href="@{/inventory}">Inventory</a>
+        <a th:href="@{/orders}">Orders</a>
+        <a th:href="@{/billing}">Billing</a>
+        <a th:href="@{/reports}">Reports</a>
+        <a th:href="@{/logout}">Logout</a>
+    </nav>
+</nav>
+
+<div class="container">
+    <div class="card">
+        <h3>📊 Generate Sales Report</h3>
+
+        <form th:action="@{/reports/generate/sales}" method="post">
+            <div class="form-group">
+                <label>Report Type</label>
+
+                <div class="report-type-card">
+                    <input type="radio" name="reportType" value="DAILY_SALES" id="daily" required>
+                    <label for="daily" style="display: inline; margin: 0;">Daily Sales Report</label>
+                </div>
+
+                <div class="report-type-card">
+                    <input type="radio" name="reportType" value="WEEKLY_SALES" id="weekly">
+                    <label for="weekly" style="display: inline; margin: 0;">Weekly Sales Report</label>
+                </div>
+
+                <div class="report-type-card">
+                    <input type="radio" name="reportType" value="MONTHLY_SALES" id="monthly">
+                    <label for="monthly" style="display: inline; margin: 0;">Monthly Sales Report</label>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate" name="startDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate" name="endDate" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn">Generate Sales Report</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>📦 Generate Inventory Report</h3>
+
+        <form th:action="@{/reports/generate/inventory}" method="post">
+            <p style="margin-bottom: 20px; color: #666;">Generate a comprehensive inventory report showing current stock levels.</p>
+            <button type="submit" class="btn">Generate Inventory Report</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>⚠️ Generate Low Stock Report</h3>
+
+        <form th:action="@{/reports/generate/low-stock}" method="post">
+            <p style="margin-bottom: 20px; color: #666;">Generate a report of all items that need reordering.</p>
+            <button type="submit" class="btn">Generate Low Stock Report</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>⏰ Generate Expiring Stock Report</h3>
+
+        <form th:action="@{/reports/generate/expiring}" method="post">
+            <div class="form-group">
+                <label for="daysAhead">Days Ahead</label>
+                <input type="number" id="daysAhead" name="daysAhead" value="30" min="1" required>
+            </div>
+            <button type="submit" class="btn">Generate Expiring Stock Report</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
+```
+
+---
+
+## 📍 Exact Location
+
+Save this file as:
+```
+src/main/resources/templates/report-generate.html
+```
+
+**NOT:**
+- ❌ `report_generate.html`
+- ❌ `reportGenerate.html`
+- ❌ `generate-report.html`
+
+**MUST BE:** `report-generate.html` (exactly)
+
+---
+
+## 🔄 After Creating the File
+
+### Step 1: Verify File Exists
+Check your project structure:
+```
+src/
+└── main/
+└── resources/
+└── templates/
+├── report-generate.html  ← Must be here
+├── reports.html
+├── report-details.html
+└── (other templates)

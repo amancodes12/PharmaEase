@@ -23,6 +23,9 @@ public class OrderService {
     private final InvoiceRepository invoiceRepository;
 
     public Orders createOrder(Orders order) {
+        // Set default status to PENDING
+        order.setStatus(Orders.OrderStatus.PENDING);
+        
         // Generate order number
         order.setOrderNumber(generateOrderNumber());
 
