@@ -4,8 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - PharmaEase</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+
+            /* Status Colors */
+            --success: #059669;
+            --success-bg: #ecfdf5;
+            --warning: #d97706;
+            --warning-bg: #fffbeb;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --info: #3b82f6;
+            --info-bg: #eff6ff;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,329 +33,310 @@
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             min-height: 100vh;
         }
 
         /* Modern Navbar */
         .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px 40px;
-            box-shadow: 0 5px 30px rgba(102, 126, 234, 0.3);
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 0 40px;
+            height: 70px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 100;
         }
 
         .navbar h1 {
-            font-size: 28px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 20px;
             font-weight: 700;
-            letter-spacing: -0.5px;
+            color: var(--text-main);
+        }
+
+        .navbar h1 span {
+            color: var(--primary);
         }
 
         .navbar nav {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .navbar nav a {
-            color: white;
+            color: var(--text-muted);
             text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 8px 16px;
+            border-radius: 6px;
             font-weight: 500;
-            transition: all 0.3s ease;
             font-size: 14px;
+            transition: all 0.2s ease;
         }
 
         .navbar nav a:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
+            color: var(--primary);
+            background: var(--primary-light);
         }
 
+        .navbar nav a.active {
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .navbar nav a.logout {
+            color: var(--danger);
+        }
+        .navbar nav a.logout:hover {
+            background: var(--danger-bg);
+        }
+
+        /* Layout */
         .container {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
         }
 
-        .welcome-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
-            border-radius: 20px;
-            margin-bottom: 40px;
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
-            animation: fadeInUp 0.6s ease-out;
+        /* Page Header */
+        .page-header {
+            margin-bottom: 32px;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .page-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
         }
 
-        .welcome-section h2 {
-            font-size: 36px;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .welcome-section p {
-            font-size: 16px;
-            opacity: 0.9;
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 14px;
         }
 
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
         }
 
         .stat-card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-            animation: fadeInUp 0.6s ease-out;
-            animation-fill-mode: both;
-        }
-
-        .stat-card:nth-child(1) { animation-delay: 0.1s; }
-        .stat-card:nth-child(2) { animation-delay: 0.2s; }
-        .stat-card:nth-child(3) { animation-delay: 0.3s; }
-        .stat-card:nth-child(4) { animation-delay: 0.4s; }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s ease;
-        }
-
-        .stat-card:hover::before {
-            transform: scaleX(1);
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
 
         .stat-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        .stat-card .icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            display: inline-block;
-            animation: bounce 2s ease-in-out infinite;
+        /* Icon styling to look like professional UI */
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .stat-card h3 {
-            color: #888;
-            font-size: 14px;
-            font-weight: 600;
+        .stat-content h3 {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
         }
 
-        .stat-card .value {
-            font-size: 42px;
+        .stat-content .value {
+            font-size: 24px;
             font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--text-main);
+            font-family: 'Poppins', sans-serif;
         }
 
-        .stat-card.sales { border-left: 5px solid #4caf50; }
-        .stat-card.orders { border-left: 5px solid #2196f3; }
-        .stat-card.low-stock { border-left: 5px solid #ff9800; }
-        .stat-card.expiring { border-left: 5px solid #f44336; }
+        /* Specific Card Colors */
+        .card-sales .stat-icon { background: var(--success-bg); }
+        .card-sales .value { color: var(--success); }
+
+        .card-orders .stat-icon { background: var(--info-bg); }
+
+        .card-low .stat-icon { background: var(--warning-bg); }
+
+        .card-expire .stat-icon { background: var(--danger-bg); }
+        .card-expire .value { color: var(--danger); }
+
 
         /* Quick Links Section */
-        .quick-links {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            animation: fadeInUp 0.6s ease-out 0.5s;
-            animation-fill-mode: both;
-        }
-
-        .quick-links h2 {
-            margin-bottom: 30px;
-            color: #333;
-            font-size: 28px;
-            font-weight: 700;
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-main);
         }
 
         .links-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 20px;
         }
 
         .link-card {
-            padding: 30px 20px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 15px;
-            text-align: center;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
             text-decoration: none;
-            color: #333;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+            transition: all 0.2s ease;
         }
 
         .link-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
-            border-color: #667eea;
-            background: white;
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
         }
 
         .link-card .icon {
-            font-size: 50px;
-            margin-bottom: 15px;
-            display: block;
-            transition: transform 0.3s ease;
+            font-size: 28px;
+            background: var(--bg-color);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
         }
 
         .link-card:hover .icon {
-            transform: scale(1.2) rotate(5deg);
+            background: var(--primary-light);
         }
 
         .link-card div:last-child {
-            font-weight: 600;
-            font-size: 15px;
+            font-weight: 500;
+            font-size: 14px;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .navbar {
                 flex-direction: column;
-                gap: 20px;
+                height: auto;
+                padding: 20px;
+                gap: 16px;
             }
 
             .navbar nav {
                 flex-wrap: wrap;
                 justify-content: center;
             }
-
-            .container {
-                padding: 0 20px;
-            }
-
-            .welcome-section h2 {
-                font-size: 28px;
-            }
-
-            .stat-card .value {
-                font-size: 36px;
-            }
         }
     </style>
 </head>
 <body>
 <nav class="navbar">
-    <h1>💊 PharmaEase</h1>
+    <h1>💊 <span>Pharma</span>Ease</h1>
     <nav>
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/medicines}">💊 Medicines</a>
-        <a th:href="@{/suppliers}">🏭 Suppliers</a>
-        <a th:href="@{/inventory}">📦 Inventory</a>
-        <a th:href="@{/orders}">📋 Orders</a>
-        <a th:href="@{/billing}">🧾 Billing</a>
-        <a th:href="@{/reports}">📊 Reports</a>
-        <a th:href="@{/logout}">🚪 Logout</a>
+        <a th:href="@{/dashboard}" class="active">Dashboard</a>
+        <a th:href="@{/medicines}">Medicines</a>
+        <a th:href="@{/suppliers}">Suppliers</a>
+        <a th:href="@{/inventory}">Inventory</a>
+        <a th:href="@{/orders}">Orders</a>
+        <a th:href="@{/billing}">Billing</a>
+        <a th:href="@{/reports}">Reports</a>
+        <a th:href="@{/logout}" class="logout">Logout</a>
     </nav>
 </nav>
 
 <div class="container">
-    <div class="welcome-section">
-        <h2>Welcome to PharmaEase Dashboard 👋</h2>
-        <p>Here's what's happening with your pharmacy today</p>
+    <div class="page-header">
+        <h2>Dashboard Overview</h2>
+        <p>Welcome back! Here's what's happening with your pharmacy today.</p>
     </div>
 
     <div class="stats-grid">
-        <div class="stat-card sales">
-            <div class="icon">💰</div>
-            <h3>Today's Sales</h3>
-            <div class="value">₹<span th:text="${stats.todaySales}">0.00</span></div>
+        <div class="stat-card card-sales">
+            <div class="stat-icon">💰</div>
+            <div class="stat-content">
+                <h3>Today's Sales</h3>
+                <div class="value">₹<span th:text="${stats.todaySales}">0.00</span></div>
+            </div>
         </div>
 
-        <div class="stat-card orders">
-            <div class="icon">📦</div>
-            <h3>Today's Orders</h3>
-            <div class="value" th:text="${stats.todayOrders}">0</div>
+        <div class="stat-card card-orders">
+            <div class="stat-icon">📦</div>
+            <div class="stat-content">
+                <h3>Today's Orders</h3>
+                <div class="value" th:text="${stats.todayOrders}">0</div>
+            </div>
         </div>
 
-        <div class="stat-card low-stock">
-            <div class="icon">⚠️</div>
-            <h3>Low Stock Items</h3>
-            <div class="value" th:text="${stats.lowStockCount}">0</div>
+        <div class="stat-card card-low">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-content">
+                <h3>Low Stock Items</h3>
+                <div class="value" th:text="${stats.lowStockCount}">0</div>
+            </div>
         </div>
 
-        <div class="stat-card expiring">
-            <div class="icon">⏰</div>
-            <h3>Expiring Soon (30 days)</h3>
-            <div class="value" th:text="${stats.expiringBatchesCount}">0</div>
+        <div class="stat-card card-expire">
+            <div class="stat-icon">⏰</div>
+            <div class="stat-content">
+                <h3>Expiring (30 days)</h3>
+                <div class="value" th:text="${stats.expiringBatchesCount}">0</div>
+            </div>
         </div>
     </div>
 
-    <div class="quick-links">
-        <h2>🚀 Quick Actions</h2>
-        <div class="links-grid">
-            <a th:href="@{/medicines/new}" class="link-card">
-                <div class="icon">💊</div>
-                <div>Add Medicine</div>
-            </a>
-            <a th:href="@{/batches/new}" class="link-card">
-                <div class="icon">📦</div>
-                <div>Add Stock Batch</div>
-            </a>
-            <a th:href="@{/billing}" class="link-card">
-                <div class="icon">🧾</div>
-                <div>New Sale</div>
-            </a>
-            <a th:href="@{/customers/new}" class="link-card">
-                <div class="icon">👤</div>
-                <div>Add Customer</div>
-            </a>
-            <a th:href="@{/inventory/alerts}" class="link-card">
-                <div class="icon">⚠️</div>
-                <div>View Alerts</div>
-            </a>
-            <a th:href="@{/reports/generate}" class="link-card">
-                <div class="icon">📊</div>
-                <div>Generate Report</div>
-            </a>
-        </div>
+    <h3 class="section-title">🚀 Quick Actions</h3>
+    <div class="links-grid">
+        <a th:href="@{/medicines/new}" class="link-card">
+            <div class="icon">💊</div>
+            <div>Add Medicine</div>
+        </a>
+        <a th:href="@{/batches/new}" class="link-card">
+            <div class="icon">📦</div>
+            <div>Add Stock</div>
+        </a>
+        <a th:href="@{/billing}" class="link-card">
+            <div class="icon">🧾</div>
+            <div>New Sale</div>
+        </a>
+        <a th:href="@{/customers/new}" class="link-card">
+            <div class="icon">👤</div>
+            <div>Add Customer</div>
+        </a>
+        <a th:href="@{/inventory/alerts}" class="link-card">
+            <div class="icon">🔔</div>
+            <div>Stock Alerts</div>
+        </a>
+        <a th:href="@{/reports/generate}" class="link-card">
+            <div class="icon">📊</div>
+            <div>Reports</div>
+        </a>
     </div>
 </div>
 </body>
