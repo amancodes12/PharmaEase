@@ -4,340 +4,294 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - PharmaEase</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
+                    colors: {
+                        mint: { 50: '#f0fdf7', 100: '#dcfce9', 200: '#bbf7d6', 300: '#86efb0', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+                        teal: { 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-light: #eff6ff;
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-main: #111827;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
-
-            /* Status Colors */
-            --success: #059669;
-            --success-bg: #ecfdf5;
-            --warning: #d97706;
-            --warning-bg: #fffbeb;
-            --danger: #dc2626;
-            --danger-bg: #fef2f2;
-            --info: #3b82f6;
-            --info-bg: #eff6ff;
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-        }
-
-        /* Modern Navbar */
-        .navbar {
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border);
-            padding: 0 40px;
-            height: 70px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .navbar h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .navbar h1 span {
-            color: var(--primary);
-        }
-
-        .navbar nav {
-            display: flex;
-            gap: 8px;
-        }
-
-        .navbar nav a {
-            color: var(--text-muted);
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.2s ease;
-        }
-
-        .navbar nav a:hover {
-            color: var(--primary);
-            background: var(--primary-light);
-        }
-
-        .navbar nav a.active {
-            color: var(--primary);
-            background: var(--primary-light);
-        }
-
-        .navbar nav a.logout {
-            color: var(--danger);
-        }
-        .navbar nav a.logout:hover {
-            background: var(--danger-bg);
-        }
-
-        /* Layout */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        /* Page Header */
-        .page-header {
-            margin-bottom: 32px;
-        }
-
-        .page-header h2 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 4px;
-        }
-
-        .page-header p {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 24px;
-            margin-bottom: 48px;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Icon styling to look like professional UI */
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-
-        .stat-content h3 {
-            color: var(--text-muted);
-            font-size: 13px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-
-        .stat-content .value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-main);
-            font-family: 'Poppins', sans-serif;
-        }
-
-        /* Specific Card Colors */
-        .card-sales .stat-icon { background: var(--success-bg); }
-        .card-sales .value { color: var(--success); }
-
-        .card-orders .stat-icon { background: var(--info-bg); }
-
-        .card-low .stat-icon { background: var(--warning-bg); }
-
-        .card-expire .stat-icon { background: var(--danger-bg); }
-        .card-expire .value { color: var(--danger); }
-
-
-        /* Quick Links Section */
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: var(--text-main);
-        }
-
-        .links-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px;
-        }
-
-        .link-card {
-            background: var(--card-bg);
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            text-decoration: none;
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 12px;
-            transition: all 0.2s ease;
-        }
-
-        .link-card:hover {
-            border-color: var(--primary);
-            background: #fff;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
-        }
-
-        .link-card .icon {
-            font-size: 28px;
-            background: var(--bg-color);
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s ease;
-        }
-
-        .link-card:hover .icon {
-            background: var(--primary-light);
-        }
-
-        .link-card div:last-child {
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                height: auto;
-                padding: 20px;
-                gap: 16px;
-            }
-
-            .navbar nav {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-        }
+        .stat-card-delay-1 { animation-delay: 0.1s; }
+        .stat-card-delay-2 { animation-delay: 0.2s; }
+        .stat-card-delay-3 { animation-delay: 0.3s; }
+        .stat-card-delay-4 { animation-delay: 0.4s; }
     </style>
 </head>
-<body>
-<nav class="navbar">
-    <h1>💊 <span>Pharma</span>Ease</h1>
-    <nav>
-        <a th:href="@{/dashboard}" class="active">Dashboard</a>
-        <a th:href="@{/medicines}">Medicines</a>
-        <a th:href="@{/suppliers}">Suppliers</a>
-        <a th:href="@{/inventory}">Inventory</a>
-        <a th:href="@{/orders}">Orders</a>
-        <a th:href="@{/billing}">Billing</a>
-        <a th:href="@{/reports}">Reports</a>
-        <a th:href="@{/logout}" class="logout">Logout</a>
-    </nav>
+<body class="bg-slate-50 font-sans antialiased">
+<!-- Top Navbar -->
+<nav class="fixed left-0 right-0 top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-xl">
+    <div class="flex h-16 items-center justify-between px-6">
+        <div class="flex items-center gap-4">
+            <button onclick="toggleSidebar()" class="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 lg:hidden">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-mint-500">
+                    <span class="text-xl">💊</span>
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="text-lg font-bold text-slate-900">PharmaEase</h1>
+                    <p class="text-xs text-slate-500">Pharmacy Management</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button class="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+            </button>
+
+            <div class="h-8 w-px bg-slate-200"></div>
+
+            <div class="flex items-center gap-3">
+                <div class="hidden text-right sm:block">
+                    <p class="text-sm font-semibold text-slate-900">Pharmacist</p>
+                    <p class="text-xs text-slate-500">Admin</p>
+                </div>
+                <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-mint-500 text-sm font-semibold text-white">
+                    P
+                </div>
+            </div>
+        </div>
+    </div>
 </nav>
 
-<div class="container">
-    <div class="page-header">
-        <h2>Dashboard Overview</h2>
-        <p>Welcome back! Here's what's happening with your pharmacy today.</p>
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 -translate-x-full border-r border-slate-200 bg-white transition-transform duration-300 lg:translate-x-0">
+    <div class="flex h-full flex-col">
+        <div class="flex-1 overflow-y-auto p-4">
+            <div class="space-y-1">
+                <a th:href="@{/dashboard}" class="flex items-center gap-3 rounded-lg bg-gradient-to-r from-teal-500 to-mint-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-500/30">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+
+                <a th:href="@{/medicines}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                    <span>Medicines</span>
+                </a>
+
+                <a th:href="@{/suppliers}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span>Suppliers</span>
+                </a>
+
+                <a th:href="@{/inventory}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    <span>Inventory</span>
+                </a>
+
+                <a th:href="@{/orders}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                    <span>Orders</span>
+                </a>
+
+                <a th:href="@{/billing}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+                    </svg>
+                    <span>Billing</span>
+                </a>
+
+                <a th:href="@{/reports}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span>Reports</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-200 p-4">
+            <a th:href="@{/logout}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                <span>Logout</span>
+            </a>
+        </div>
     </div>
+</aside>
 
-    <div class="stats-grid">
-        <div class="stat-card card-sales">
-            <div class="stat-icon">💰</div>
-            <div class="stat-content">
-                <h3>Today's Sales</h3>
-                <div class="value">₹<span th:text="${stats.todaySales}">0.00</span></div>
+<!-- Overlay for mobile -->
+<div id="overlay" class="fixed inset-0 z-30 bg-slate-900/50 opacity-0 backdrop-blur-sm transition-opacity duration-300 lg:hidden" style="pointer-events: none;" onclick="toggleSidebar()"></div>
+
+<!-- Main Content -->
+<main class="lg:pl-64 pt-16">
+    <div class="p-6">
+        <!-- Welcome Section -->
+        <div class="fade-in mb-8 rounded-2xl bg-gradient-to-r from-teal-600 to-mint-500 p-8 text-white shadow-xl shadow-teal-500/30">
+            <h2 class="mb-2 text-3xl font-bold">Welcome to PharmaEase Dashboard 👋</h2>
+            <p class="text-teal-50">Here's what's happening with your pharmacy today</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- Today's Sales -->
+            <div class="fade-in stat-card-delay-1 group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10">
+                <div class="absolute right-0 top-0 h-24 w-24 translate-x-8 -translate-y-8 rounded-full bg-emerald-500/10 transition-transform duration-300 group-hover:scale-150"></div>
+                <div class="relative">
+                    <div class="mb-4 inline-flex rounded-xl bg-emerald-100 p-3 text-emerald-600">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <p class="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">Today's Sales</p>
+                    <p class="text-3xl font-bold text-slate-900">₹<span th:text="${stats.todaySales}">0.00</span></p>
+                </div>
+            </div>
+
+            <!-- Today's Orders -->
+            <div class="fade-in stat-card-delay-2 group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10">
+                <div class="absolute right-0 top-0 h-24 w-24 translate-x-8 -translate-y-8 rounded-full bg-blue-500/10 transition-transform duration-300 group-hover:scale-150"></div>
+                <div class="relative">
+                    <div class="mb-4 inline-flex rounded-xl bg-blue-100 p-3 text-blue-600">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                    </div>
+                    <p class="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">Today's Orders</p>
+                    <p class="text-3xl font-bold text-slate-900" th:text="${stats.todayOrders}">0</p>
+                </div>
+            </div>
+
+            <!-- Low Stock Items -->
+            <div class="fade-in stat-card-delay-3 group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/10">
+                <div class="absolute right-0 top-0 h-24 w-24 translate-x-8 -translate-y-8 rounded-full bg-amber-500/10 transition-transform duration-300 group-hover:scale-150"></div>
+                <div class="relative">
+                    <div class="mb-4 inline-flex rounded-xl bg-amber-100 p-3 text-amber-600">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <p class="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">Low Stock Items</p>
+                    <p class="text-3xl font-bold text-slate-900" th:text="${stats.lowStockCount}">0</p>
+                </div>
+            </div>
+
+            <!-- Expiring Soon -->
+            <div class="fade-in stat-card-delay-4 group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-red-500/10">
+                <div class="absolute right-0 top-0 h-24 w-24 translate-x-8 -translate-y-8 rounded-full bg-red-500/10 transition-transform duration-300 group-hover:scale-150"></div>
+                <div class="relative">
+                    <div class="mb-4 inline-flex rounded-xl bg-red-100 p-3 text-red-600">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <p class="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">Expiring Soon (30 days)</p>
+                    <p class="text-3xl font-bold text-slate-900" th:text="${stats.expiringBatchesCount}">0</p>
+                </div>
             </div>
         </div>
 
-        <div class="stat-card card-orders">
-            <div class="stat-icon">📦</div>
-            <div class="stat-content">
-                <h3>Today's Orders</h3>
-                <div class="value" th:text="${stats.todayOrders}">0</div>
-            </div>
-        </div>
+        <!-- Quick Actions -->
+        <div class="fade-in rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+            <h2 class="mb-6 text-2xl font-bold text-slate-900">🚀 Quick Actions</h2>
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+                <a th:href="@{/medicines/new}" class="group flex flex-col items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all duration-200 hover:scale-105 hover:border-teal-500 hover:bg-white hover:shadow-lg hover:shadow-teal-500/10">
+                    <div class="rounded-lg bg-teal-100 p-3 transition-transform duration-200 group-hover:scale-110">
+                        <svg class="h-6 w-6 text-teal-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </div>
+                    <span class="text-center text-sm font-semibold text-slate-700">Add Medicine</span>
+                </a>
 
-        <div class="stat-card card-low">
-            <div class="stat-icon">⚠️</div>
-            <div class="stat-content">
-                <h3>Low Stock Items</h3>
-                <div class="value" th:text="${stats.lowStockCount}">0</div>
-            </div>
-        </div>
+                <a th:href="@{/batches/new}" class="group flex flex-col items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all duration-200 hover:scale-105 hover:border-mint-500 hover:bg-white hover:shadow-lg hover:shadow-mint-500/10">
+                    <div class="rounded-lg bg-mint-100 p-3 transition-transform duration-200 group-hover:scale-110">
+                        <svg class="h-6 w-6 text-mint-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        </svg>
+                    </div>
+                    <span class="text-center text-sm font-semibold text-slate-700">Add Stock Batch</span>
+                </a>
 
-        <div class="stat-card card-expire">
-            <div class="stat-icon">⏰</div>
-            <div class="stat-content">
-                <h3>Expiring (30 days)</h3>
-                <div class="value" th:text="${stats.expiringBatchesCount}">0</div>
+                <a th:href="@{/billing}" class="group flex flex-col items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all duration-200 hover:scale-105 hover:border-blue-500 hover:bg-white hover:shadow-lg hover:shadow-blue-500/10">
+                    <div class="rounded-lg bg-blue-100 p-3 transition-transform duration-200 group-hover:scale-110">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+                        </svg>
+                    </div>
+                    <span class="text-center text-sm font-semibold text-slate-700">New Sale</span>
+                </a>
+
+                <a th:href="@{/customers/new}" class="group flex flex-col items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all duration-200 hover:scale-105 hover:border-purple-500 hover:bg-white hover:shadow-lg hover:shadow-purple-500/10">
+                    <div class="rounded-lg bg-purple-100 p-3 transition-transform duration-200 group-hover:scale-110">
+                        <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </div>
+                    <span class="text-center text-sm font-semibold text-slate-700">Add Customer</span>
+                </a>
+
+                <a th:href="@{/inventory/alerts}" class="group flex flex-col items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all duration-200 hover:scale-105 hover:border-amber-500 hover:bg-white hover:shadow-lg hover:shadow-amber-500/10">
+                    <div class="rounded-lg bg-amber-100 p-3 transition-transform duration-200 group-hover:scale-110">
+                        <svg class="h-6 w-6 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                    </div>
+                    <span class="text-center text-sm font-semibold text-slate-700">View Alerts</span>
+                </a>
+
+                <a th:href="@{/reports/generate}" class="group flex flex-col items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all duration-200 hover:scale-105 hover:border-indigo-500 hover:bg-white hover:shadow-lg hover:shadow-indigo-500/10">
+                    <div class="rounded-lg bg-indigo-100 p-3 transition-transform duration-200 group-hover:scale-110">
+                        <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <span class="text-center text-sm font-semibold text-slate-700">Generate Report</span>
+                </a>
             </div>
         </div>
     </div>
+</main>
 
-    <h3 class="section-title">🚀 Quick Actions</h3>
-    <div class="links-grid">
-        <a th:href="@{/medicines/new}" class="link-card">
-            <div class="icon">💊</div>
-            <div>Add Medicine</div>
-        </a>
-        <a th:href="@{/batches/new}" class="link-card">
-            <div class="icon">📦</div>
-            <div>Add Stock</div>
-        </a>
-        <a th:href="@{/billing}" class="link-card">
-            <div class="icon">🧾</div>
-            <div>New Sale</div>
-        </a>
-        <a th:href="@{/customers/new}" class="link-card">
-            <div class="icon">👤</div>
-            <div>Add Customer</div>
-        </a>
-        <a th:href="@{/inventory/alerts}" class="link-card">
-            <div class="icon">🔔</div>
-            <div>Stock Alerts</div>
-        </a>
-        <a th:href="@{/reports/generate}" class="link-card">
-            <div class="icon">📊</div>
-            <div>Reports</div>
-        </a>
-    </div>
-</div>
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        sidebar.classList.toggle('-translate-x-full');
+
+        if (sidebar.classList.contains('-translate-x-full')) {
+            overlay.style.pointerEvents = 'none';
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('opacity-0');
+        } else {
+            overlay.style.pointerEvents = 'auto';
+            overlay.classList.remove('opacity-0');
+            overlay.classList.add('opacity-100');
+        }
+    }
+</script>
 </body>
 </html>

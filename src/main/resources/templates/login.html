@@ -4,201 +4,145 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - PharmaEase</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
+                    colors: {
+                        mint: { 50: '#f0fdf7', 100: '#dcfce9', 200: '#bbf7d6', 300: '#86efb0', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+                        teal: { 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
-            --input-bg: #f9fafb;
+        .scale-in { animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .login-container {
-            background: var(--card-bg);
-            padding: 48px 40px;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            width: 100%;
-            max-width: 420px;
-            border: 1px solid var(--border);
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .logo h1 {
-            font-family: 'Poppins', sans-serif;
-            color: var(--text-main);
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            letter-spacing: -0.5px;
-        }
-
-        .logo h1 span {
-            color: var(--primary);
-        }
-
-        .logo p {
-            color: var(--text-muted);
-            font-size: 14px;
-            font-weight: 400;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            color: var(--text-main);
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.2s ease;
-            font-family: 'Inter', sans-serif;
-            background: var(--input-bg);
-            color: var(--text-main);
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: #fff;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-        }
-
-        .form-group input::placeholder {
-            color: #9ca3af;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            font-family: 'Inter', sans-serif;
-            margin-top: 8px;
-        }
-
-        .btn:hover {
-            background-color: var(--primary-hover);
-        }
-
-        /* Alerts */
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-        }
-
-        .alert-error {
-            background: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fee2e2;
-        }
-
-        .alert-success {
-            background: #ecfdf5;
-            color: #065f46;
-            border: 1px solid #d1fae5;
-        }
-
-        .links {
-            text-align: center;
-            margin-top: 24px;
-            color: var(--text-muted);
-            font-size: 13px;
-        }
-
-        .links a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .links a:hover {
-            text-decoration: underline;
-        }
-
-        /* Cleaning up the old icon-input classes to be standard inputs */
-        .icon-input input {
-            padding-left: 16px; /* Resetting padding since we removed emoji icons */
-        }
+        .password-toggle { cursor: pointer; user-select: none; }
     </style>
 </head>
-<body>
-<div class="login-container">
-    <div class="logo">
-        <h1>💊 <span>Pharma</span>Ease</h1>
-        <p>Pharmacy Management System</p>
-    </div>
+<body class="min-h-screen bg-slate-50 font-sans antialiased">
+<div class="flex min-h-screen items-center justify-center p-6">
+    <div class="scale-in w-full max-w-md">
+        <div class="rounded-2xl border border-slate-200 bg-white p-10 shadow-sm">
+            <!-- Logo -->
+            <div class="mb-8 text-center">
+                <div class="mb-3 flex items-center justify-center gap-2">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-mint-500">
+                        <span class="text-2xl">💊</span>
+                    </div>
+                </div>
+                <h1 class="text-3xl font-bold text-slate-900">
+                    <span class="bg-gradient-to-r from-teal-600 to-mint-500 bg-clip-text text-transparent">Pharma</span>Ease
+                </h1>
+                <p class="mt-2 text-sm text-slate-500">Pharmacy Management System</p>
+            </div>
 
-    <div th:if="${error}" class="alert alert-error">
-        <span th:text="${error}">Error message</span>
-    </div>
+            <!-- Error Alert -->
+            <div th:if="${error}" class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
+                <div class="flex items-start gap-3">
+                    <svg class="h-5 w-5 flex-shrink-0 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-sm font-medium text-red-800" th:text="${error}">Error message</span>
+                </div>
+            </div>
 
-    <div th:if="${message}" class="alert alert-success">
-        <span th:text="${message}">Success message</span>
-    </div>
+            <!-- Success Alert -->
+            <div th:if="${message}" class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                <div class="flex items-start gap-3">
+                    <svg class="h-5 w-5 flex-shrink-0 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-sm font-medium text-emerald-800" th:text="${message}">Success message</span>
+                </div>
+            </div>
 
-    <form th:action="@{/login}" method="post">
-        <div class="form-group icon-input">
-            <label for="username">Email Address</label>
-            <input type="email" id="username" name="username" required placeholder="name@company.com">
+            <!-- Login Form -->
+            <form th:action="@{/login}" method="post" class="space-y-5">
+                <div>
+                    <label for="username" class="mb-2 block text-sm font-semibold text-slate-700">Email Address</label>
+                    <input
+                            type="email"
+                            id="username"
+                            name="username"
+                            required
+                            autofocus
+                            placeholder="name@company.com"
+                            class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 transition-all duration-200 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10"
+                    >
+                </div>
+
+                <div>
+                    <label for="password" class="mb-2 block text-sm font-semibold text-slate-700">Password</label>
+                    <div class="relative">
+                        <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                required
+                                placeholder="Enter your password"
+                                class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 pr-12 text-slate-900 transition-all duration-200 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10"
+                        >
+                        <button type="button" class="password-toggle absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600" onclick="togglePassword()">
+                            <svg id="eye-open" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            <svg id="eye-closed" class="hidden h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button
+                        type="submit"
+                        class="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-teal-600 to-mint-500 px-4 py-3 text-base font-semibold text-white shadow-lg shadow-teal-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-teal-500/40 focus:outline-none focus:ring-4 focus:ring-teal-500/30"
+                >
+                    <span class="relative z-10">Sign In</span>
+                    <div class="absolute inset-0 -z-0 bg-gradient-to-r from-teal-700 to-mint-600 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></div>
+                </button>
+            </form>
+
+            <!-- Links -->
+            <div class="mt-6 text-center">
+                <p class="text-sm text-slate-600">
+                    New here?
+                    <a th:href="@{/register}" class="font-semibold text-teal-600 transition-colors hover:text-teal-700">Create an account</a>
+                </p>
+            </div>
         </div>
 
-        <div class="form-group icon-input icon-password">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required placeholder="Enter your password">
+        <div class="mt-6 text-center text-xs text-slate-400">
+            Protected by 256-bit SSL encryption
         </div>
-
-        <button type="submit" class="btn">Sign In</button>
-    </form>
-
-    <div class="links">
-        <p>New here? <a th:href="@{/register}">Create an account</a></p>
     </div>
 </div>
+
+<script>
+    function togglePassword() {
+        const input = document.getElementById('password');
+        const eyeOpen = document.getElementById('eye-open');
+        const eyeClosed = document.getElementById('eye-closed');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            eyeOpen.classList.add('hidden');
+            eyeClosed.classList.remove('hidden');
+        } else {
+            input.type = 'password';
+            eyeOpen.classList.remove('hidden');
+            eyeClosed.classList.add('hidden');
+        }
+    }
+</script>
 </body>
 </html>
