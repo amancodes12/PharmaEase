@@ -1,524 +1,272 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory - PharmaEase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
+                    colors: {
+                        mint: { 50: '#f0fdf7', 100: '#dcfce9', 200: '#bbf7d6', 300: '#86efb0', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+                        teal: { 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-        }
-
-        /* ========== NAVBAR ========== */
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px 40px;
-            box-shadow: 0 5px 30px rgba(102, 126, 234, 0.3);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .navbar h1 {
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .navbar nav {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .navbar nav a {
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .navbar nav a:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-
-        /* ========== CONTAINER ========== */
-        .container {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 40px;
-        }
-
-        /* ========== ANIMATIONS ========== */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* ========== HEADER ========== */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        .header h2 {
-            font-size: 32px;
-            color: #333;
-            font-weight: 700;
-        }
-
-        /* ========== BUTTONS ========== */
-        .btn {
-            padding: 14px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-            display: inline-block;
-            border: none;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            font-size: 15px;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-edit {
-            background: linear-gradient(135deg, #2196f3, #1976d2);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-block;
-        }
-
-        .btn-edit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.3);
-        }
-
-        .btn-delete {
-            background: linear-gradient(135deg, #f44336, #d32f2f);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-block;
-        }
-
-        .btn-delete:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(244, 67, 54, 0.3);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #4caf50, #45a049);
-        }
-
-        .btn-success:hover {
-            box-shadow: 0 15px 35px rgba(76, 175, 80, 0.4);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d, #545b62);
-            margin-left: 10px;
-        }
-
-        /* ========== SEARCH BAR ========== */
-        .search-bar {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            animation: fadeInUp 0.6s ease-out 0.1s;
-            animation-fill-mode: both;
-        }
-
-        .search-bar input {
-            flex: 1;
-            padding: 15px 25px;
-            border: none;
-            border-radius: 12px;
-            font-size: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .search-bar input:focus {
-            outline: none;
-            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
-            transform: translateY(-2px);
-        }
-
-        /* ========== TABLE ========== */
-        .table-container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow-x: auto;
-            animation: fadeInUp 0.6s ease-out 0.2s;
-            animation-fill-mode: both;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 10px;
-        }
-
-        th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 18px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        th:first-child {
-            border-radius: 12px 0 0 12px;
-        }
-
-        th:last-child {
-            border-radius: 0 12px 12px 0;
-        }
-
-        td {
-            padding: 20px 18px;
-            background: #f8f9fa;
-            color: #333;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        tr:hover td {
-            background: #e9ecef;
-            transform: scale(1.01);
-        }
-
-        td:first-child {
-            border-radius: 12px 0 0 12px;
-        }
-
-        td:last-child {
-            border-radius: 0 12px 12px 0;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        /* ========== ALERTS ========== */
-        .alert-success {
-            background: linear-gradient(135deg, #4caf50, #45a049);
-            color: white;
-            padding: 18px 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.3);
-            animation: slideDown 0.4s ease-out;
-            font-weight: 500;
-        }
-
-        .alert-error {
-            background: linear-gradient(135deg, #f44336, #d32f2f);
-            color: white;
-            padding: 18px 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 20px rgba(244, 67, 54, 0.3);
-            animation: slideDown 0.4s ease-out;
-            font-weight: 500;
-        }
-
-        /* ========== FORMS ========== */
-        .form-card {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            animation: fadeInUp 0.6s ease-out;
-            margin-bottom: 30px;
-        }
-
-        .form-card h2,
-        .form-card h3 {
-            margin-bottom: 30px;
-            color: #333;
-            font-weight: 700;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
-            font-size: 14px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #e8e8e8;
-            border-radius: 12px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            font-family: 'Poppins', sans-serif;
-            background: #f8f9fa;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .checkbox-group input {
-            width: auto;
-        }
-
-        /* ========== CARDS ========== */
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        .card h3 {
-            margin-bottom: 20px;
-            color: #333;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-            font-weight: 700;
-        }
-
-        /* ========== STATUS BADGES ========== */
-        .status-badge {
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .status-normal {
-            background: linear-gradient(135deg, #4caf50, #45a049);
-            color: white;
-        }
-
-        .status-low {
-            background: linear-gradient(135deg, #ff9800, #f57c00);
-            color: white;
-        }
-
-        .status-out {
-            background: linear-gradient(135deg, #f44336, #d32f2f);
-            color: white;
-        }
-
-        .status-pending {
-            background: linear-gradient(135deg, #ff9800, #f57c00);
-            color: white;
-        }
-
-        .status-completed {
-            background: linear-gradient(135deg, #4caf50, #45a049);
-            color: white;
-        }
-
-        .status-cancelled {
-            background: linear-gradient(135deg, #f44336, #d32f2f);
-            color: white;
-        }
-
-        .status-active {
-            background: linear-gradient(135deg, #4caf50, #45a049);
-            color: white;
-        }
-
-        .status-expired {
-            background: linear-gradient(135deg, #9e9e9e, #757575);
-            color: white;
-        }
-
-        /* ========== RESPONSIVE ========== */
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 20px;
-            }
-
-            .navbar {
-                flex-direction: column;
-                gap: 20px;
-            }
-
-            .navbar nav {
-                justify-content: center;
-            }
-
-            .header {
-                flex-direction: column;
-                gap: 15px;
-                align-items: flex-start;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .search-bar {
-                flex-direction: column;
-            }
-
-            .actions {
-                flex-direction: column;
-            }
-        }
-
     </style>
 </head>
-<body>
-<nav class="navbar">
-    <h1>PharmaEase</h1>
-    <nav>
-        <a th:href="@{/dashboard}">Dashboard</a>
-        <a th:href="@{/medicines}">Medicines</a>
-        <a th:href="@{/suppliers}">Suppliers</a>
-        <a th:href="@{/inventory}">Inventory</a>
-        <a th:href="@{/orders}">Orders</a>
-        <a th:href="@{/billing}">Billing</a>
-        <a th:href="@{/reports}">Reports</a>
-        <a th:href="@{/logout}">Logout</a>
-    </nav>
+<body class="bg-slate-50 font-sans antialiased">
+<!-- Top Navbar -->
+<nav class="fixed left-0 right-0 top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-xl">
+    <div class="flex h-16 items-center justify-between px-6">
+        <div class="flex items-center gap-4">
+            <button onclick="toggleSidebar()" class="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 lg:hidden">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-mint-500">
+                    <span class="text-xl">💊</span>
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="text-lg font-bold text-slate-900">PharmaEase</h1>
+                    <p class="text-xs text-slate-500">Pharmacy Management</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button class="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+            </button>
+
+            <div class="h-8 w-px bg-slate-200"></div>
+
+            <div class="flex items-center gap-3">
+                <div class="hidden text-right sm:block">
+                    <p class="text-sm font-semibold text-slate-900">Pharmacist</p>
+                    <p class="text-xs text-slate-500">Admin</p>
+                </div>
+                <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-mint-500 text-sm font-semibold text-white">
+                    P
+                </div>
+            </div>
+        </div>
+    </div>
 </nav>
 
-<div class="container">
-    <div class="header">
-        <h2 th:text="${pageTitle}">All Inventory</h2>
-        <a th:href="@{/batches/new}" class="btn">+ Add Stock Batch</a>
-    </div>
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 -translate-x-full border-r border-slate-200 bg-white transition-transform duration-300 lg:translate-x-0">
+    <div class="flex h-full flex-col">
+        <div class="flex-1 overflow-y-auto p-4">
+            <div class="space-y-1">
+                <a th:href="@{/dashboard}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
 
-    <div class="filters">
-        <a th:href="@{/inventory}" class="btn">All Items</a>
-        <a th:href="@{/inventory(filter='low-stock')}" class="btn">Low Stock</a>
-        <a th:href="@{/inventory(filter='out-of-stock')}" class="btn">Out of Stock</a>
-        <a th:href="@{/inventory/alerts}" class="btn">View Alerts</a>
-    </div>
+                <a th:href="@{/medicines}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                    <span>Medicines</span>
+                </a>
 
-    <div class="table-container">
-        <table>
-            <thead>
-            <tr>
-                <th>Medicine</th>
-                <th>Category</th>
-                <th>Total Quantity</th>
-                <th>Available</th>
-                <th>Reserved</th>
-                <th>Reorder Level</th>
-                <th>Status</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="item : ${inventory}">
-                <td th:text="${item.medicine.name}">Medicine Name</td>
-                <td th:text="${item.medicine.category}">Category</td>
-                <td th:text="${item.totalQuantity}">0</td>
-                <td th:text="${item.availableQuantity}">0</td>
-                <td th:text="${item.reservedQuantity}">0</td>
-                <td th:text="${item.medicine.reorderLevel}">0</td>
-                <td>
-                    <span th:if="${item.availableQuantity == 0}" class="status-badge status-out">OUT OF STOCK</span>
-                    <span th:if="${item.lowStock && item.availableQuantity > 0}" class="status-badge status-low">LOW STOCK</span>
-                    <span th:if="${!item.lowStock && item.availableQuantity > 0}" class="status-badge status-normal">NORMAL</span>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                <a th:href="@{/suppliers}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span>Suppliers</span>
+                </a>
+
+                <a th:href="@{/inventory}" class="flex items-center gap-3 rounded-lg bg-gradient-to-r from-teal-500 to-mint-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-500/30">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    <span>Inventory</span>
+                </a>
+
+                <a th:href="@{/orders}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                    <span>Orders</span>
+                </a>
+
+                <a th:href="@{/billing}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+                    </svg>
+                    <span>Billing</span>
+                </a>
+
+                <a th:href="@{/reports}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span>Reports</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-200 p-4">
+            <a th:href="@{/logout}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                <span>Logout</span>
+            </a>
+        </div>
     </div>
-</div>
+</aside>
+
+<!-- Overlay for mobile -->
+<div id="overlay" class="fixed inset-0 z-30 bg-slate-900/50 opacity-0 backdrop-blur-sm transition-opacity duration-300 lg:hidden" style="pointer-events: none;" onclick="toggleSidebar()"></div>
+
+<!-- Main Content -->
+<main class="lg:pl-64 pt-16">
+    <div class="p-6">
+        <!-- Page Header -->
+        <div class="fade-in mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <h2 class="text-3xl font-bold text-slate-900" th:text="${pageTitle}">All Inventory</h2>
+                <p class="mt-2 text-slate-600">Track stock levels, manage batches, and monitor inventory status.</p>
+            </div>
+            <a th:href="@{/batches/new}" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-mint-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-teal-500/40">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>Add Stock Batch</span>
+            </a>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="fade-in mb-6 flex flex-wrap gap-3">
+            <a th:href="@{/inventory}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-teal-500 hover:bg-teal-50 hover:text-teal-700">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                </svg>
+                All Items
+            </a>
+            <a th:href="@{/inventory(filter='low-stock')}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-amber-500 hover:bg-amber-50 hover:text-amber-700">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                Low Stock
+            </a>
+            <a th:href="@{/inventory(filter='out-of-stock')}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-red-500 hover:bg-red-50 hover:text-red-700">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                Out of Stock
+            </a>
+            <a th:href="@{/inventory/alerts}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-purple-500 hover:bg-purple-50 hover:text-purple-700">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+                View Alerts
+            </a>
+        </div>
+
+        <!-- Table Card -->
+        <div class="fade-in overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="border-b border-slate-200 bg-slate-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Medicine</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Category</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Total Quantity</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Available</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Reserved</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Reorder Level</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Status</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                    <tr th:each="item : ${inventory}" class="transition-colors hover:bg-slate-50">
+                        <td class="px-6 py-4 text-sm font-medium text-slate-900" th:text="${item.medicine.name}">Medicine Name</td>
+                        <td class="px-6 py-4 text-sm text-slate-600" th:text="${item.medicine.category}">Category</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-slate-900" th:text="${item.totalQuantity}">0</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-teal-600" th:text="${item.availableQuantity}">0</td>
+                        <td class="px-6 py-4 text-sm text-slate-600" th:text="${item.reservedQuantity}">0</td>
+                        <td class="px-6 py-4 text-sm text-slate-900" th:text="${item.medicine.reorderLevel}">0</td>
+                        <td class="px-6 py-4">
+                                    <span th:if="${item.availableQuantity == 0}" class="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+                                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                        </svg>
+                                        OUT OF STOCK
+                                    </span>
+                            <span th:if="${item.lowStock && item.availableQuantity > 0}" class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                        </svg>
+                                        LOW STOCK
+                                    </span>
+                            <span th:if="${!item.lowStock && item.availableQuantity > 0}" class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        NORMAL
+                                    </span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(inventory)}">
+                        <td colspan="7" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <svg class="h-12 w-12 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                </svg>
+                                <div>
+                                    <p class="text-sm font-medium text-slate-900">No inventory items found</p>
+                                    <p class="mt-1 text-sm text-slate-500">Add stock batches to get started.</p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        sidebar.classList.toggle('-translate-x-full');
+
+        if (sidebar.classList.contains('-translate-x-full')) {
+            overlay.style.pointerEvents = 'none';
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('opacity-0');
+        } else {
+            overlay.style.pointerEvents = 'auto';
+            overlay.classList.remove('opacity-0');
+            overlay.classList.add('opacity-100');
+        }
+    }
+</script>
 </body>
 </html>
