@@ -4,156 +4,183 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - PharmaEase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
+                    colors: {
+                        mint: { 50: '#f0fdf7', 100: '#dcfce9', 200: '#bbf7d6', 300: '#86efb0', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+                        teal: { 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+        .scale-in { animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
-        .register-container {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 500px;
-        }
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .logo h1 {
-            color: #667eea;
-            font-size: 32px;
-            margin-bottom: 5px;
-        }
-        .logo p {
-            color: #666;
-            font-size: 14px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .btn:hover {
-            background: #5568d3;
-        }
-        .alert {
-            padding: 12px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .alert-error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-        .alert-success {
-            background: #efe;
-            color: #3c3;
-            border: 1px solid #cfc;
-        }
-        .links {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .links a {
-            color: #667eea;
-            text-decoration: none;
-        }
-        .links a:hover {
-            text-decoration: underline;
-        }
+        .password-toggle { cursor: pointer; user-select: none; }
     </style>
 </head>
-<body>
-<div class="register-container">
-    <div class="logo">
-        <h1>PharmaEase</h1>
-        <p>Create Your Account</p>
-    </div>
-
-    <div th:if="${error}" class="alert alert-error">
-        <span th:text="${error}">Error message</span>
-    </div>
-
-    <div th:if="${success}" class="alert alert-success">
-        <span th:text="${success}">Success message</span>
-    </div>
-
-    <form th:action="@{/register}" th:object="${pharmacist}" method="post">
-        <div class="form-group">
-            <label for="name">Full Name *</label>
-            <input type="text" id="name" th:field="*{name}" required placeholder="Enter your full name">
-        </div>
-
-        <div class="form-group">
-            <label for="email">Email Address *</label>
-            <input type="email" id="email" th:field="*{email}" required placeholder="your.email@example.com">
-        </div>
-
-        <div class="form-group">
-            <label for="password">Password *</label>
-            <input type="password" id="password" th:field="*{password}" required placeholder="Create a strong password" minlength="6">
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" th:field="*{phone}" placeholder="+1234567890">
+<body class="min-h-screen bg-slate-50 font-sans antialiased">
+<div class="flex min-h-screen items-center justify-center p-6">
+    <div class="scale-in w-full max-w-md">
+        <div class="rounded-2xl border border-slate-200 bg-white p-10 shadow-sm">
+            <!-- Logo -->
+            <div class="mb-8 text-center">
+                <div class="mb-3 flex items-center justify-center gap-2">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-mint-500">
+                        <span class="text-2xl">💊</span>
+                    </div>
+                </div>
+                <h1 class="text-3xl font-bold text-slate-900">
+                    <span class="bg-gradient-to-r from-teal-600 to-mint-500 bg-clip-text text-transparent">Pharma</span>Ease
+                </h1>
+                <p class="mt-2 text-sm text-slate-500">Create Your Account</p>
             </div>
 
-            <div class="form-group">
-                <label for="licenseNumber">License Number</label>
-                <input type="text" id="licenseNumber" th:field="*{licenseNumber}" placeholder="PH-XXXX-XXX">
+            <!-- Error Alert -->
+            <div th:if="${error}" class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
+                <div class="flex items-start gap-3">
+                    <svg class="h-5 w-5 flex-shrink-0 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-sm font-medium text-red-800" th:text="${error}">Error message</span>
+                </div>
+            </div>
+
+            <!-- Success Alert -->
+            <div th:if="${success}" class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                <div class="flex items-start gap-3">
+                    <svg class="h-5 w-5 flex-shrink-0 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-sm font-medium text-emerald-800" th:text="${success}">Success message</span>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <form th:action="@{/register}" th:object="${pharmacist}" method="post" class="space-y-5">
+                <div>
+                    <label for="name" class="mb-2 block text-sm font-semibold text-slate-700">Full Name <span class="text-red-500">*</span></label>
+                    <input
+                            type="text"
+                            id="name"
+                            th:field="*{name}"
+                            required
+                            autofocus
+                            placeholder="Enter your full name"
+                            class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 transition-all duration-200 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10"
+                    >
+                </div>
+
+                <div>
+                    <label for="email" class="mb-2 block text-sm font-semibold text-slate-700">Email Address <span class="text-red-500">*</span></label>
+                    <input
+                            type="email"
+                            id="email"
+                            th:field="*{email}"
+                            required
+                            placeholder="your.email@example.com"
+                            class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 transition-all duration-200 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10"
+                    >
+                </div>
+
+                <div>
+                    <label for="password" class="mb-2 block text-sm font-semibold text-slate-700">Password <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <input
+                                type="password"
+                                id="password"
+                                th:field="*{password}"
+                                required
+                                minlength="6"
+                                placeholder="Create a strong password (min. 6 characters)"
+                                class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 pr-12 text-slate-900 transition-all duration-200 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10"
+                        >
+                        <button type="button" class="password-toggle absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600" onclick="togglePassword()">
+                            <svg id="eye-open" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            <svg id="eye-closed" class="hidden h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="mt-1.5 text-xs text-slate-500">Must be at least 6 characters long</p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div>
+                        <label for="phone" class="mb-2 block text-sm font-semibold text-slate-700">Phone Number</label>
+                        <input
+                                type="tel"
+                                id="phone"
+                                th:field="*{phone}"
+                                placeholder="+1234567890"
+                                class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 transition-all duration-200 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10"
+                        >
+                    </div>
+
+                    <div>
+                        <label for="licenseNumber" class="mb-2 block text-sm font-semibold text-slate-700">License Number</label>
+                        <input
+                                type="text"
+                                id="licenseNumber"
+                                th:field="*{licenseNumber}"
+                                placeholder="PH-XXXX-XXX"
+                                class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 transition-all duration-200 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10"
+                        >
+                    </div>
+                </div>
+
+                <button
+                        type="submit"
+                        class="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-teal-600 to-mint-500 px-4 py-3 text-base font-semibold text-white shadow-lg shadow-teal-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-teal-500/40 focus:outline-none focus:ring-4 focus:ring-teal-500/30"
+                >
+                    <span class="relative z-10">Register</span>
+                    <div class="absolute inset-0 -z-0 bg-gradient-to-r from-teal-700 to-mint-600 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></div>
+                </button>
+            </form>
+
+            <!-- Links -->
+            <div class="mt-6 text-center">
+                <p class="text-sm text-slate-600">
+                    Already have an account?
+                    <a th:href="@{/login}" class="font-semibold text-teal-600 transition-colors hover:text-teal-700">Login here</a>
+                </p>
             </div>
         </div>
 
-        <button type="submit" class="btn">Register</button>
-    </form>
-
-    <div class="links">
-        <p>Already have an account? <a th:href="@{/login}">Login here</a></p>
+        <div class="mt-6 text-center text-xs text-slate-400">
+            Protected by 256-bit SSL encryption
+        </div>
     </div>
 </div>
+
+<script>
+    function togglePassword() {
+        const input = document.getElementById('password');
+        const eyeOpen = document.getElementById('eye-open');
+        const eyeClosed = document.getElementById('eye-closed');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            eyeOpen.classList.add('hidden');
+            eyeClosed.classList.remove('hidden');
+        } else {
+            input.type = 'password';
+            eyeOpen.classList.remove('hidden');
+            eyeClosed.classList.add('hidden');
+        }
+    }
+</script>
 </body>
 </html>

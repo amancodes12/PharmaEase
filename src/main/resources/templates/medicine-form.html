@@ -2,165 +2,309 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medicine Form - PharmaEase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
+                    colors: {
+                        mint: { 50: '#f0fdf7', 100: '#dcfce9', 200: '#bbf7d6', 300: '#86efb0', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+                        teal: { 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .navbar {
-            background: #667eea;
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .navbar h1 { font-size: 24px; }
-        .navbar nav a { color: white; text-decoration: none; margin: 0 15px; font-weight: 500; }
-        .container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
-        .form-card {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .form-card h2 { margin-bottom: 25px; color: #333; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #333; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        .form-group textarea { min-height: 100px; resize: vertical; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .checkbox-group { display: flex; align-items: center; gap: 10px; }
-        .checkbox-group input { width: auto; }
-        .btn { padding: 12px 25px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; }
-        .btn:hover { background: #5568d3; }
-        .btn-secondary { background: #6c757d; margin-left: 10px; }
-        .btn-secondary:hover { background: #5a6268; }
     </style>
 </head>
-<body>
-<nav class="navbar">
-    <h1>PharmaEase</h1>
-    <nav>
-        <a th:href="@{/dashboard}">Dashboard</a>
-        <a th:href="@{/medicines}">Medicines</a>
-        <a th:href="@{/logout}">Logout</a>
-    </nav>
+<body class="bg-slate-50 font-sans antialiased">
+<!-- Top Navbar -->
+<nav class="fixed left-0 right-0 top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-xl">
+    <div class="flex h-16 items-center justify-between px-6">
+        <div class="flex items-center gap-4">
+            <button onclick="toggleSidebar()" class="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 lg:hidden">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-mint-500">
+                    <span class="text-xl">💊</span>
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="text-lg font-bold text-slate-900">PharmaEase</h1>
+                    <p class="text-xs text-slate-500">Pharmacy Management</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button class="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+            </button>
+
+            <div class="h-8 w-px bg-slate-200"></div>
+
+            <div class="flex items-center gap-3">
+                <div class="hidden text-right sm:block">
+                    <p class="text-sm font-semibold text-slate-900">Pharmacist</p>
+                    <p class="text-xs text-slate-500">Admin</p>
+                </div>
+                <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-mint-500 text-sm font-semibold text-white">
+                    P
+                </div>
+            </div>
+        </div>
+    </div>
 </nav>
 
-<div class="container">
-    <div class="form-card">
-        <h2 th:text="${medicine.id == null ? 'Add New Medicine' : 'Edit Medicine'}">Medicine Form</h2>
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 -translate-x-full border-r border-slate-200 bg-white transition-transform duration-300 lg:translate-x-0">
+    <div class="flex h-full flex-col">
+        <div class="flex-1 overflow-y-auto p-4">
+            <div class="space-y-1">
+                <a th:href="@{/dashboard}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
 
-        <form th:action="@{/medicines/save}" th:object="${medicine}" method="post">
-            <input type="hidden" th:field="*{id}">
+                <a th:href="@{/medicines}" class="flex items-center gap-3 rounded-lg bg-gradient-to-r from-teal-500 to-mint-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-500/30">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                    <span>Medicines</span>
+                </a>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="name">Medicine Name *</label>
-                    <input type="text" id="name" th:field="*{name}" required>
-                </div>
+                <a th:href="@{/suppliers}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span>Suppliers</span>
+                </a>
 
-                <div class="form-group">
-                    <label for="genericName">Generic Name</label>
-                    <input type="text" id="genericName" th:field="*{genericName}">
-                </div>
+                <a th:href="@{/inventory}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    <span>Inventory</span>
+                </a>
+
+                <a th:href="@{/orders}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                    <span>Orders</span>
+                </a>
+
+                <a th:href="@{/billing}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+                    </svg>
+                    <span>Billing</span>
+                </a>
+
+                <a th:href="@{/reports}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span>Reports</span>
+                </a>
             </div>
+        </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="manufacturer">Manufacturer</label>
-                    <input type="text" id="manufacturer" th:field="*{manufacturer}">
-                </div>
-
-                <div class="form-group">
-                    <label for="category">Category</label>
-                    <select id="category" th:field="*{category}">
-                        <option value="">Select Category</option>
-                        <option value="Analgesics">Analgesics</option>
-                        <option value="Antibiotics">Antibiotics</option>
-                        <option value="Antacids">Antacids</option>
-                        <option value="Vitamins">Vitamins</option>
-                        <option value="Cardiovascular">Cardiovascular</option>
-                        <option value="Respiratory">Respiratory</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="dosageForm">Dosage Form</label>
-                    <select id="dosageForm" th:field="*{dosageForm}">
-                        <option value="">Select Form</option>
-                        <option value="Tablet">Tablet</option>
-                        <option value="Capsule">Capsule</option>
-                        <option value="Syrup">Syrup</option>
-                        <option value="Injection">Injection</option>
-                        <option value="Cream">Cream</option>
-                        <option value="Drops">Drops</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="strength">Strength</label>
-                    <input type="text" id="strength" th:field="*{strength}" placeholder="e.g., 500mg">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" th:field="*{description}"></textarea>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="unitPrice">Unit Price (₹) *</label>
-                    <input type="number" step="0.01" id="unitPrice" th:field="*{unitPrice}" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="sellingPrice">Selling Price (₹) *</label>
-                    <input type="number" step="0.01" id="sellingPrice" th:field="*{sellingPrice}" required>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="reorderLevel">Reorder Level *</label>
-                    <input type="number" id="reorderLevel" th:field="*{reorderLevel}" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="supplier">Supplier</label>
-                    <select id="supplier" th:field="*{supplier.id}">
-                        <option value="">Select Supplier</option>
-                        <option th:each="supplier : ${suppliers}"
-                                th:value="${supplier.id}"
-                                th:text="${supplier.name}">Supplier</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group checkbox-group">
-                <input type="checkbox" id="requiresPrescription" th:field="*{requiresPrescription}">
-                <label for="requiresPrescription" style="margin-bottom: 0;">Requires Prescription</label>
-            </div>
-
-            <div class="form-group checkbox-group">
-                <input type="checkbox" id="active" th:field="*{active}">
-                <label for="active" style="margin-bottom: 0;">Active</label>
-            </div>
-
-            <button type="submit" class="btn">Save Medicine</button>
-            <a th:href="@{/medicines}" class="btn btn-secondary">Cancel</a>
-        </form>
+        <div class="border-t border-slate-200 p-4">
+            <a th:href="@{/logout}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                <span>Logout</span>
+            </a>
+        </div>
     </div>
-</div>
-</body>
-</html>
+</aside>
+
+<!-- Overlay for mobile -->
+<div id="overlay" class="fixed inset-0 z-30 bg-slate-900/50 opacity-0 backdrop-blur-sm transition-opacity duration-300 lg:hidden" style="pointer-events: none;" onclick="toggleSidebar()"></div>
+
+<!-- Main Content -->
+<main class="lg:pl-64 pt-16">
+    <div class="p-6">
+        <!-- Page Header -->
+        <div class="fade-in mb-8">
+            <h2 class="text-3xl font-bold text-slate-900" th:text="${medicine.id == null ? 'Add New Medicine' : 'Edit Medicine'}">Medicine Form</h2>
+            <p class="mt-2 text-slate-600">Fill in the details below to add or update medicine information.</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="fade-in rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+            <form th:action="@{/medicines/save}" th:object="${medicine}" method="post" class="space-y-6">
+                <input type="hidden" th:field="*{id}">
+
+                <!-- Basic Information Section -->
+                <div>
+                    <h3 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900">
+                        <svg class="h-5 w-5 text-teal-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Basic Information
+                    </h3>
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <div>
+                            <label for="name" class="mb-2 block text-sm font-semibold text-slate-700">Medicine Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="name" th:field="*{name}" required class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                        </div>
+
+                        <div>
+                            <label for="genericName" class="mb-2 block text-sm font-semibold text-slate-700">Generic Name</label>
+                            <input type="text" id="genericName" th:field="*{genericName}" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                        </div>
+
+                        <div>
+                            <label for="manufacturer" class="mb-2 block text-sm font-semibold text-slate-700">Manufacturer</label>
+                            <input type="text" id="manufacturer" th:field="*{manufacturer}" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                        </div>
+
+                        <div>
+                            <label for="category" class="mb-2 block text-sm font-semibold text-slate-700">Category</label>
+                            <select id="category" th:field="*{category}" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                                <option value="">Select Category</option>
+                                <option value="Analgesics">Analgesics</option>
+                                <option value="Antibiotics">Antibiotics</option>
+                                <option value="Antacids">Antacids</option>
+                                <option value="Vitamins">Vitamins</option>
+                                <option value="Cardiovascular">Cardiovascular</option>
+                                <option value="Respiratory">Respiratory</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="dosageForm" class="mb-2 block text-sm font-semibold text-slate-700">Dosage Form</label>
+                            <select id="dosageForm" th:field="*{dosageForm}" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                                <option value="">Select Form</option>
+                                <option value="Tablet">Tablet</option>
+                                <option value="Capsule">Capsule</option>
+                                <option value="Syrup">Syrup</option>
+                                <option value="Injection">Injection</option>
+                                <option value="Cream">Cream</option>
+                                <option value="Drops">Drops</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="strength" class="mb-2 block text-sm font-semibold text-slate-700">Strength</label>
+                            <input type="text" id="strength" th:field="*{strength}" placeholder="e.g., 500mg" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <label for="description" class="mb-2 block text-sm font-semibold text-slate-700">Description</label>
+                        <textarea id="description" th:field="*{description}" rows="3" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10"></textarea>
+                    </div>
+                </div>
+
+                <!-- Pricing Section -->
+                <div class="border-t border-slate-200 pt-6">
+                    <h3 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900">
+                        <svg class="h-5 w-5 text-teal-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Pricing & Inventory
+                    </h3>
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <div>
+                            <label for="unitPrice" class="mb-2 block text-sm font-semibold text-slate-700">Unit Price (₹) <span class="text-red-500">*</span></label>
+                            <input type="number" step="0.01" id="unitPrice" th:field="*{unitPrice}" required class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                        </div>
+
+                        <div>
+                            <label for="sellingPrice" class="mb-2 block text-sm font-semibold text-slate-700">Selling Price (₹) <span class="text-red-500">*</span></label>
+                            <input type="number" step="0.01" id="sellingPrice" th:field="*{sellingPrice}" required class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                        </div>
+
+                        <div>
+                            <label for="reorderLevel" class="mb-2 block text-sm font-semibold text-slate-700">Reorder Level <span class="text-red-500">*</span></label>
+                            <input type="number" id="reorderLevel" th:field="*{reorderLevel}" required class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                        </div>
+
+                        <div>
+                            <label for="supplier" class="mb-2 block text-sm font-semibold text-slate-700">Supplier</label>
+                            <select id="supplier" th:field="*{supplier.id}" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                                <option value="">Select Supplier</option>
+                                <option th:each="supplier : ${suppliers}" th:value="${supplier.id}" th:text="${supplier.name}">Supplier</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Section -->
+                <div class="border-t border-slate-200 pt-6">
+                    <h3 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900">
+                        <svg class="h-5 w-5 text-teal-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        Settings
+                    </h3>
+                    <div class="space-y-4">
+                        <label class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-colors hover:border-teal-500 hover:bg-teal-50">
+                            <input type="checkbox" id="requiresPrescription" th:field="*{requiresPrescription}" class="h-5 w-5 rounded border-slate-300 text-teal-600 transition-colors focus:ring-2 focus:ring-teal-500/20">
+                            <div>
+                                <p class="font-semibold text-slate-900">Requires Prescription</p>
+                                <p class="text-sm text-slate-500">This medicine requires a valid prescription</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-colors hover:border-teal-500 hover:bg-teal-50">
+                            <input type="checkbox" id="active" th:field="*{active}" class="h-5 w-5 rounded border-slate-300 text-teal-600 transition-colors focus:ring-2 focus:ring-teal-500/20">
+                            <div>
+                                <p class="font-semibold text-slate-900">Active</p>
+                                <p class="text-sm text-slate-500">Medicine is available for sale</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row">
+                    <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-mint-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-teal-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-teal-500/40 focus:outline-none focus:ring-4 focus:ring-teal-500/30">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Save Medicine
+                    </button>
+                    <a th:href="@{/medicines}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3 text-base font-semibold text-slate-700 transition-all duration-200 hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-200">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        sidebar.classList.toggle('-translate-x-full');
+
+        if (sidebar.classList.contains
