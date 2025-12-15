@@ -2,49 +2,51 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Generate Report - PharmaEase</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .navbar { background: #667eea; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .navbar h1 { font-size: 24px; }
-        .navbar nav a { color: white; text-decoration: none; margin: 0 15px; font-weight: 500; }
-        .container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
-        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .card h3 { margin-bottom: 20px; color: #333; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #333; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 5px; font-size: 14px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .btn { padding: 12px 25px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; width: 100%; }
-        .btn:hover { background: #5568d3; }
-        .report-type-card { padding: 15px; background: #f9f9f9; border-radius: 5px; margin-bottom: 10px; cursor: pointer; border: 2px solid transparent; transition: all 0.3s; }
-        .report-type-card:hover { border-color: #667eea; background: #f0f0ff; }
-        .report-type-card input { margin-right: 10px; }
-    </style>
+    <title>Report Details - PharmaEase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
+                    colors: {
+                        mint: { 50: '#f0fdf7', 100: '#dcfce9', 200: '#bbf7d6', 300: '#86efb0', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+                        teal: { 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-<nav class="navbar">
-    <h1>PharmaEase</h1>
-    <nav>
-        <a th:href="@{/dashboard}">Dashboard</a>
-        <a th:href="@{/medicines}">Medicines</a>
-        <a th:href="@{/suppliers}">Suppliers</a>
-        <a th:href="@{/inventory}">Inventory</a>
-        <a th:href="@{/orders}">Orders</a>
-        <a th:href="@{/billing}">Billing</a>
-        <a th:href="@{/reports}">Reports</a>
-        <a th:href="@{/logout}">Logout</a>
-    </nav>
-</nav>
+<body class="bg-slate-50 font-sans antialiased">
+<!-- Top Navbar -->
+<nav class="fixed left-0 right-0 top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-xl">
+    <div class="flex h-16 items-center justify-between px-6">
+        <div class="flex items-center gap-4">
+            <button onclick="toggleSidebar()" class="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 lg:hidden">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
 
-<div class="container">
-    <div class="card">
-        <h3>📊 Generate Sales Report</h3>
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-mint-500">
+                    <span class="text-xl">💊</span>
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="text-lg font-bold text-slate-900">PharmaEase</h1>
+                    <p class="text-xs text-slate-500">Pharmacy Management</p>
+                </div>
+            </div>
+        </div>
 
-        <form th:action="@{/reports/generate/sales}" method="post">
-            <div class="form-group">
-                <label>Report Type</label>
+        <div class="flex items-center gap-3">
+            <button class="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+            </button>
 
                 <div class="report-type-card">
                     <input type="radio" name="reportType" value="DAILY_SALES" id="daily" required>

@@ -129,6 +129,6 @@ public class ReportController {
                             (int) java.time.temporal.ChronoUnit.DAYS.between(report.getStartDate(), report.getEndDate())));
         }
 
-        return "report-details";
+        return "reports";
     }
 }
