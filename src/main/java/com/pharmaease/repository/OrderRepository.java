@@ -23,9 +23,9 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
     @Query("SELECT o FROM Orders o WHERE o.createdAt >= :startDate ORDER BY o.createdAt DESC")
     List<Orders> findRecentOrders(@Param("startDate") LocalDateTime startDate);
 
-    @Query("SELECT COUNT(o) FROM Orders o WHERE o.createdAt BETWEEN :start AND :end")
+    @Query("SELECT COUNT(o) FROM Orders o WHERE o.createdAt BETWEEN :start AND :end AND o.status <> 'CANCELLED'")
     Long countOrdersBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
-    @Query("SELECT SUM(o.totalAmount) FROM Orders o WHERE o.createdAt BETWEEN :start AND :end AND o.status = 'COMPLETED'")
+    @Query("SELECT SUM(o.totalAmount) FROM Orders o WHERE o.createdAt BETWEEN :start AND :end AND o.status <> 'CANCELLED'")
     Double sumTotalAmountBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

@@ -52,8 +52,12 @@ public class BillingController {
                 order.setOrderItems(new ArrayList<>());
             }
 
-            // Create order
+            // Create order as pending
             Orders createdOrder = orderService.createOrder(order);
+
+            // Immediately complete the order using the calculated total to ensure
+            // sales and invoices are recorded for the dashboard.
+            createdOrder = orderService.completeOrder(createdOrder.getId(), createdOrder.getTotalAmount());
 
             redirectAttributes.addFlashAttribute("success", "Order created successfully");
             return "redirect:/billing/invoice/" + createdOrder.getId();
