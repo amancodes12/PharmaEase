@@ -28,4 +28,7 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
 
     @Query("SELECT SUM(o.totalAmount) FROM Orders o WHERE o.createdAt BETWEEN :start AND :end AND o.status <> 'CANCELLED'")
     Double sumTotalAmountBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query("SELECT SUM(o.totalAmount) FROM Orders o WHERE o.status <> 'CANCELLED'")
+    Double sumTotalAmountAll();
 }
