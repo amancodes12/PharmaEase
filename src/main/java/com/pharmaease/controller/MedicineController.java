@@ -49,6 +49,17 @@ public class MedicineController {
     public String saveMedicine(@ModelAttribute Medicine medicine,
                                RedirectAttributes redirectAttributes) {
         try {
+            // Handle supplier relationship - load the actual supplier entity if ID is set
+            if (medicine.getSupplier() != null && medicine.getSupplier().getId() != null) {
+                try {
+                    medicine.setSupplier(supplierService.getSupplierById(medicine.getSupplier().getId()));
+                } catch (Exception e) {
+                    medicine.setSupplier(null);
+                }
+            } else {
+                medicine.setSupplier(null);
+            }
+            
             if (medicine.getId() == null) {
                 medicineService.createMedicine(medicine);
                 redirectAttributes.addFlashAttribute("success", "Medicine added successfully");

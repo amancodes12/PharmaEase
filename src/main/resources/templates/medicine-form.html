@@ -118,7 +118,7 @@
                     <span>Billing</span>
                 </a>
 
-                <a href="#" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                <a th:href="@{/reports}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                     </svg>
@@ -146,13 +146,15 @@
     <div class="p-6">
         <!-- Page Header -->
         <div class="fade-in mb-8 rounded-2xl bg-gradient-to-r from-teal-600 to-mint-500 p-8 text-white shadow-xl shadow-teal-500/30">
-            <h2 class="mb-2 text-3xl font-bold">Add New Medicine 💊</h2>
-            <p class="text-teal-50">Fill in the details below to add medicine to your inventory</p>
+            <h2 class="mb-2 text-3xl font-bold" th:text="${medicine.id != null} ? 'Edit Medicine 💊' : 'Add New Medicine 💊'">Add New Medicine 💊</h2>
+            <p class="text-teal-50" th:text="${medicine.id != null} ? 'Update the medicine details below' : 'Fill in the details below to add medicine to your inventory'">Fill in the details below to add medicine to your inventory</p>
         </div>
 
         <!-- Form Card -->
         <div class="fade-in rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-            <form class="space-y-6">
+            <form th:action="@{/medicines/save}" th:object="${medicine}" method="post" class="space-y-6">
+                <input type="hidden" th:field="*{id}">
+                
                 <!-- Basic Information Section -->
                 <div>
                     <h3 class="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900">
@@ -164,36 +166,30 @@
                     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                         <div>
                             <label for="name" class="mb-2 block text-sm font-semibold text-slate-700">Medicine Name <span class="text-red-500">*</span></label>
-                            <input type="text" id="name" required class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                            <input type="text" th:field="*{name}" id="name" required class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
                         </div>
 
                         <div>
                             <label for="genericName" class="mb-2 block text-sm font-semibold text-slate-700">Generic Name</label>
-                            <input type="text" id="genericName" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                            <input type="text" th:field="*{genericName}" id="genericName" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
                         </div>
 
                         <div>
                             <label for="manufacturer" class="mb-2 block text-sm font-semibold text-slate-700">Manufacturer</label>
-                            <input type="text" id="manufacturer" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                            <input type="text" th:field="*{manufacturer}" id="manufacturer" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
                         </div>
 
                         <div>
                             <label for="category" class="mb-2 block text-sm font-semibold text-slate-700">Category</label>
-                            <select id="category" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                            <select th:field="*{category}" id="category" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
                                 <option value="">Select Category</option>
-                                <option value="Analgesics">Analgesics</option>
-                                <option value="Antibiotics">Antibiotics</option>
-                                <option value="Antacids">Antacids</option>
-                                <option value="Vitamins">Vitamins</option>
-                                <option value="Cardiovascular">Cardiovascular</option>
-                                <option value="Respiratory">Respiratory</option>
-                                <option value="Other">Other</option>
+                                <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}">Category</option>
                             </select>
                         </div>
 
                         <div>
                             <label for="dosageForm" class="mb-2 block text-sm font-semibold text-slate-700">Dosage Form</label>
-                            <select id="dosageForm" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                            <select th:field="*{dosageForm}" id="dosageForm" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
                                 <option value="">Select Form</option>
                                 <option value="Tablet">Tablet</option>
                                 <option value="Capsule">Capsule</option>
@@ -206,13 +202,13 @@
 
                         <div>
                             <label for="strength" class="mb-2 block text-sm font-semibold text-slate-700">Strength</label>
-                            <input type="text" id="strength" placeholder="e.g., 500mg" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                            <input type="text" th:field="*{strength}" id="strength" placeholder="e.g., 500mg" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
                         </div>
                     </div>
 
                     <div class="mt-5">
                         <label for="description" class="mb-2 block text-sm font-semibold text-slate-700">Description</label>
-                        <textarea id="description" rows="3" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10"></textarea>
+                        <textarea th:field="*{description}" id="description" rows="3" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10"></textarea>
                     </div>
                 </div>
 
@@ -227,26 +223,24 @@
                     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                         <div>
                             <label for="unitPrice" class="mb-2 block text-sm font-semibold text-slate-700">Unit Price (₹) <span class="text-red-500">*</span></label>
-                            <input type="number" step="0.01" id="unitPrice" required class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                            <input type="number" step="0.01" th:field="*{unitPrice}" id="unitPrice" required class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
                         </div>
 
                         <div>
                             <label for="sellingPrice" class="mb-2 block text-sm font-semibold text-slate-700">Selling Price (₹) <span class="text-red-500">*</span></label>
-                            <input type="number" step="0.01" id="sellingPrice" required class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                            <input type="number" step="0.01" th:field="*{sellingPrice}" id="sellingPrice" required class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
                         </div>
 
                         <div>
                             <label for="reorderLevel" class="mb-2 block text-sm font-semibold text-slate-700">Reorder Level <span class="text-red-500">*</span></label>
-                            <input type="number" id="reorderLevel" required class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                            <input type="number" th:field="*{reorderLevel}" id="reorderLevel" required class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
                         </div>
 
                         <div>
                             <label for="supplier" class="mb-2 block text-sm font-semibold text-slate-700">Supplier</label>
-                            <select id="supplier" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
+                            <select th:field="*{supplier.id}" id="supplier" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10">
                                 <option value="">Select Supplier</option>
-                                <option value="1">MediCorp Supplies</option>
-                                <option value="2">PharmaTech Ltd</option>
-                                <option value="3">HealthPlus Distributors</option>
+                                <option th:each="supplier : ${suppliers}" th:value="${supplier.id}" th:text="${supplier.name}">Supplier</option>
                             </select>
                         </div>
                     </div>
@@ -263,7 +257,7 @@
                     </h3>
                     <div class="space-y-4">
                         <label class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-colors hover:border-teal-500 hover:bg-teal-50">
-                            <input type="checkbox" id="requiresPrescription" class="h-5 w-5 rounded border-slate-300 text-teal-600 transition-colors focus:ring-2 focus:ring-teal-500/20">
+                            <input type="checkbox" th:field="*{requiresPrescription}" id="requiresPrescription" class="h-5 w-5 rounded border-slate-300 text-teal-600 transition-colors focus:ring-2 focus:ring-teal-500/20">
                             <div>
                                 <p class="font-semibold text-slate-900">Requires Prescription</p>
                                 <p class="text-sm text-slate-500">This medicine requires a valid prescription</p>
@@ -271,7 +265,7 @@
                         </label>
 
                         <label class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-colors hover:border-teal-500 hover:bg-teal-50">
-                            <input type="checkbox" id="active" checked class="h-5 w-5 rounded border-slate-300 text-teal-600 transition-colors focus:ring-2 focus:ring-teal-500/20">
+                            <input type="checkbox" th:field="*{active}" id="active" class="h-5 w-5 rounded border-slate-300 text-teal-600 transition-colors focus:ring-2 focus:ring-teal-500/20">
                             <div>
                                 <p class="font-semibold text-slate-900">Active</p>
                                 <p class="text-sm text-slate-500">Medicine is available for sale</p>
