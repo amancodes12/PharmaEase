@@ -100,11 +100,18 @@
                     <span>Suppliers</span>
                 </a>
 
-                <a th:href="@{/inventory}" class="flex items-center gap-3 rounded-lg bg-gradient-to-r from-teal-500 to-mint-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-500/30">
+                <a th:href="@{/inventory}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                     </svg>
                     <span>Inventory</span>
+                </a>
+                
+                <a th:href="@{/inventory/alerts}" class="flex items-center gap-3 rounded-lg bg-gradient-to-r from-teal-500 to-mint-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-500/30">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    <span>Alerts</span>
                 </a>
 
                 <a th:href="@{/orders}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
@@ -198,7 +205,7 @@
                                     </span>
                         </td>
                         <td class="px-6 py-4">
-                            <a th:href="@{/batches/new}" class="inline-flex items-center gap-1 rounded-lg bg-teal-50 px-3 py-1.5 text-xs font-medium text-teal-700 transition-colors hover:bg-teal-100">
+                            <a th:href="@{/batches/new(medicineId=${item.medicine.id})}" class="inline-flex items-center gap-1 rounded-lg bg-teal-50 px-3 py-1.5 text-xs font-medium text-teal-700 transition-colors hover:bg-teal-100">
                                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                                 </svg>
@@ -248,8 +255,10 @@
                         <td class="px-6 py-4 text-sm font-medium text-slate-900" th:text="${batch.batchNumber}">Batch</td>
                         <td class="px-6 py-4 text-sm text-slate-900" th:text="${batch.medicine.name}">Medicine</td>
                         <td class="px-6 py-4 text-sm font-semibold text-slate-900" th:text="${batch.remainingQuantity}">0</td>
-                        <td class="px-6 py-4 text-sm text-slate-600" th:text="${batch.expiryDate}">Date</td>
-                        <td class="px-6 py-4 text-sm font-semibold text-orange-600" th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(T(java.time.LocalDate).now(), batch.expiryDate)} + ' days'">Days</td>
+                        <td class="px-6 py-4 text-sm text-slate-600" th:text="${#temporals.format(batch.expiryDate, 'dd MMM yyyy')}">Date</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-orange-600">
+                            <span th:with="days=${T(java.time.temporal.ChronoUnit).DAYS.between(T(java.time.LocalDate).now(), batch.expiryDate)}" th:text="${days} + ' days'">Days</span>
+                        </td>
                         <td class="px-6 py-4">
                                     <span class="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-700">
                                         <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -301,4 +310,61 @@
                         <td class="px-6 py-4 text-sm font-medium text-slate-900" th:text="${batch.batchNumber}">Batch</td>
                         <td class="px-6 py-4 text-sm text-slate-900" th:text="${batch.medicine.name}">Medicine</td>
                         <td class="px-6 py-4 text-sm font-semibold text-slate-900" th:text="${batch.remainingQuantity}">0</td>
-                        <td class="px-6 py-4 text-sm text-slate-600" th:text="${batch.ex
+                        <td class="px-6 py-4 text-sm text-slate-600" th:text="${#temporals.format(batch.expiryDate, 'dd MMM yyyy')}">Date</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-red-600">
+                            <span th:with="days=${T(java.time.temporal.ChronoUnit).DAYS.between(batch.expiryDate, T(java.time.LocalDate).now())}" th:text="${days} + ' days ago'">Days</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+                                <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                EXPIRED
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <a th:href="@{/batches/delete/{id}(id=${batch.id}, redirectTo='alerts')}" 
+                               onclick="return confirm('Are you sure you want to delete this expired batch?')"
+                               class="inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-100">
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                Remove
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${expiredBatches == null or expiredBatches.isEmpty()}" class="p-12 text-center">
+                <svg class="mx-auto h-12 w-12 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="mt-3 text-sm font-medium text-slate-900">No expired batches!</p>
+                <p class="mt-1 text-sm text-slate-500">All stock is valid</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        sidebar.classList.toggle('-translate-x-full');
+
+        if (sidebar.classList.contains('-translate-x-full')) {
+            overlay.style.pointerEvents = 'none';
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('opacity-0');
+        } else {
+            overlay.style.pointerEvents = 'auto';
+            overlay.classList.remove('opacity-0');
+            overlay.classList.add('opacity-100');
+        }
+    }
+</script>
+</body>
+</html>

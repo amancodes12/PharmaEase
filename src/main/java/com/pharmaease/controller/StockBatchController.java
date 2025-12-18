@@ -33,8 +33,12 @@ public class StockBatchController {
     }
 
     @GetMapping("/new")
-    public String newBatchForm(Model model) {
-        model.addAttribute("batch", new StockBatch());
+    public String newBatchForm(@RequestParam(required = false) Long medicineId, Model model) {
+        StockBatch batch = new StockBatch();
+        if (medicineId != null) {
+            batch.setMedicine(medicineService.getMedicineById(medicineId));
+        }
+        model.addAttribute("batch", batch);
         model.addAttribute("medicines", medicineService.getActiveMedicines());
         return "batch-form";
     }
@@ -65,12 +69,17 @@ public class StockBatchController {
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteBatch(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String deleteBatch(@PathVariable Long id, 
+                             @RequestParam(required = false) String redirectTo,
+                             RedirectAttributes redirectAttributes) {
         try {
             batchService.deleteBatch(id);
             redirectAttributes.addFlashAttribute("success", "Batch deleted successfully");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        if ("alerts".equals(redirectTo)) {
+            return "redirect:/inventory/alerts";
         }
         return "redirect:/batches";
     }
