@@ -146,8 +146,14 @@
     <div class="p-6">
         <!-- Page Header -->
         <div class="fade-in mb-8 rounded-2xl bg-gradient-to-r from-teal-600 to-mint-500 p-8 text-white shadow-xl shadow-teal-500/30">
-            <h2 class="mb-2 text-3xl font-bold" th:text="${medicine.id != null} ? 'Edit Medicine 💊' : 'Add New Medicine 💊'">Add New Medicine 💊</h2>
-            <p class="text-teal-50" th:text="${medicine.id != null} ? 'Update the medicine details below' : 'Fill in the details below to add medicine to your inventory'">Fill in the details below to add medicine to your inventory</p>
+            <h2 class="mb-2 text-3xl font-bold">
+                <span th:if="${medicine.id != null}">Edit Medicine 💊</span>
+                <span th:unless="${medicine.id != null}">Add New Medicine 💊</span>
+            </h2>
+            <p class="text-teal-50">
+                <span th:if="${medicine.id != null}">Update the medicine details below</span>
+                <span th:unless="${medicine.id != null}">Fill in the details below to add medicine to your inventory</span>
+            </p>
         </div>
 
         <!-- Form Card -->
