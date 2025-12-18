@@ -24,6 +24,7 @@ public class ReportService {
     private final OrderItemRepository orderItemRepository;
     private final InventoryRepository inventoryRepository;
     private final StockBatchRepository batchRepository;
+    private final InvoiceRepository invoiceRepository;
 
     public Report generateSalesReport(LocalDate startDate, LocalDate endDate, Report.ReportType reportType, Pharmacist pharmacist) {
         LocalDateTime start = startDate.atStartOfDay();
@@ -117,21 +118,24 @@ public class ReportService {
     public Map<String, Object> getDashboardStatistics() {
         Map<String, Object> stats = new HashMap<>();
 
-        // Today's sales
+        // Define common date ranges
         LocalDateTime todayStart = LocalDate.now().atStartOfDay();
         LocalDateTime todayEnd = LocalDate.now().atTime(LocalTime.MAX);
-        Double todaySales = orderRepository.sumTotalAmountBetween(todayStart, todayEnd);
-        stats.put("todaySales", todaySales != null ? todaySales : 0.0);
-
-        // This week's sales
         LocalDateTime weekStart = LocalDate.now().minusDays(7).atStartOfDay();
-        Double weekSales = orderRepository.sumTotalAmountBetween(weekStart, todayEnd);
-        stats.put("weekSales", weekSales != null ? weekSales : 0.0);
-
-        // This month's sales
         LocalDateTime monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay();
-        Double monthSales = orderRepository.sumTotalAmountBetween(monthStart, todayEnd);
-        stats.put("monthSales", monthSales != null ? monthSales : 0.0);
+
+        // Sales based on invoices (actual paid amounts)
+        double todaySales = toDouble(invoiceRepository.sumAmountPaidBetween(todayStart, todayEnd));
+        stats.put("todaySales", todaySales);
+
+        double weekSales = toDouble(invoiceRepository.sumAmountPaidBetween(weekStart, todayEnd));
+        stats.put("weekSales", weekSales);
+
+        double monthSales = toDouble(invoiceRepository.sumAmountPaidBetween(monthStart, todayEnd));
+        stats.put("monthSales", monthSales);
+
+        double totalSales = toDouble(invoiceRepository.sumAmountPaidAll());
+        stats.put("totalSales", totalSales);
 
         // Today's orders
         Long todayOrders = orderRepository.countOrdersBetween(todayStart, todayEnd);
@@ -147,5 +151,9 @@ public class ReportService {
         stats.put("expiringBatchesCount", expiringBatches.size());
 
         return stats;
+    }
+
+    private double toDouble(BigDecimal value) {
+        return value != null ? value.doubleValue() : 0.0;
     }
 }
