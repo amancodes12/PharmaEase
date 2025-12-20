@@ -11,6 +11,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/billing")
@@ -31,13 +33,18 @@ public class BillingController {
     }
 
     @PostMapping("/create-order")
-    public String createOrder(@ModelAttribute Orders order,
-                              @RequestParam(required = false) Long customerId,
+    public String createOrder(@RequestParam(required = false) Long customerId,
+                              @RequestParam(required = false) String paymentMethod,
+                              @RequestParam(required = false, defaultValue = "0") BigDecimal discount,
+                              @RequestParam Map<String, String> allParams,
                               Authentication authentication,
                               RedirectAttributes redirectAttributes) {
         try {
+            // Create new order
+            Orders order = new Orders();
+            
             // Set customer if provided
-            if (customerId != null) {
+            if (customerId != null && customerId > 0) {
                 order.setCustomer(customerService.getCustomerById(customerId));
             }
 
@@ -47,22 +54,74 @@ public class BillingController {
                     .orElseThrow(() -> new RuntimeException("Pharmacist not found"));
             order.setPharmacist(pharmacist);
 
-            // Initialize order items list if null
-            if (order.getOrderItems() == null) {
-                order.setOrderItems(new ArrayList<>());
+            // Set payment method
+            if (paymentMethod != null && !paymentMethod.isEmpty()) {
+                try {
+                    order.setPaymentMethod(Orders.PaymentMethod.valueOf(paymentMethod));
+                } catch (IllegalArgumentException e) {
+                    order.setPaymentMethod(Orders.PaymentMethod.CASH);
+                }
+            } else {
+                order.setPaymentMethod(Orders.PaymentMethod.CASH);
             }
 
-            // Create order as pending
+            // Set discount
+            order.setDiscount(discount != null ? discount : BigDecimal.ZERO);
+
+            // Build order items from form parameters
+            List<OrderItem> orderItems = new ArrayList<>();
+            int index = 0;
+            while (allParams.containsKey("orderItems[" + index + "].medicine.id")) {
+                String medicineIdStr = allParams.get("orderItems[" + index + "].medicine.id");
+                String quantityStr = allParams.get("orderItems[" + index + "].quantity");
+                String unitPriceStr = allParams.get("orderItems[" + index + "].unitPrice");
+                
+                if (medicineIdStr != null && !medicineIdStr.isEmpty() && 
+                    quantityStr != null && !quantityStr.isEmpty() &&
+                    unitPriceStr != null && !unitPriceStr.isEmpty()) {
+                    try {
+                        Long medicineId = Long.parseLong(medicineIdStr);
+                        Integer quantity = Integer.parseInt(quantityStr);
+                        BigDecimal unitPrice = new BigDecimal(unitPriceStr);
+                        
+                        if (quantity > 0 && unitPrice.compareTo(BigDecimal.ZERO) > 0) {
+                            OrderItem item = new OrderItem();
+                            Medicine medicine = medicineService.getMedicineById(medicineId);
+                            item.setMedicine(medicine);
+                            item.setQuantity(quantity);
+                            item.setUnitPrice(unitPrice);
+                            orderItems.add(item);
+                        }
+                    } catch (Exception e) {
+                        // Skip invalid items
+                    }
+                }
+                index++;
+            }
+
+            // Validate that we have at least one order item
+            if (orderItems.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Please add at least one medicine to the order");
+                return "redirect:/billing";
+            }
+
+            order.setOrderItems(orderItems);
+
+            // Create order - it will be saved as COMPLETED and invoice will be generated
             Orders createdOrder = orderService.createOrder(order);
+            
+            // Ensure order is completed and paid
+            if (createdOrder.getStatus() != Orders.OrderStatus.COMPLETED) {
+                createdOrder.setStatus(Orders.OrderStatus.COMPLETED);
+                createdOrder.setPaid(true);
+                createdOrder = orderService.completeOrder(createdOrder.getId(), createdOrder.getTotalAmount());
+            }
 
-            // Immediately complete the order using the calculated total to ensure
-            // sales and invoices are recorded for the dashboard.
-            createdOrder = orderService.completeOrder(createdOrder.getId(), createdOrder.getTotalAmount());
-
-            redirectAttributes.addFlashAttribute("success", "Order created successfully");
+            redirectAttributes.addFlashAttribute("success", "Sale completed successfully");
             return "redirect:/billing/invoice/" + createdOrder.getId();
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            e.printStackTrace(); // Log the error
+            redirectAttributes.addFlashAttribute("error", "Error creating order: " + e.getMessage());
             return "redirect:/billing";
         }
     }

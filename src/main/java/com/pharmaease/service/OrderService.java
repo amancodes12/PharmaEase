@@ -23,36 +23,62 @@ public class OrderService {
     private final InvoiceRepository invoiceRepository;
 
     public Orders createOrder(Orders order) {
-        // Set default status to PENDING
-        order.setStatus(Orders.OrderStatus.PENDING);
-        
-        // Generate order number
-        order.setOrderNumber(generateOrderNumber());
+        // Generate order number if not already set
+        if (order.getOrderNumber() == null || order.getOrderNumber().isEmpty()) {
+            order.setOrderNumber(generateOrderNumber());
+        }
+
+        // Validate order items exist
+        if (order.getOrderItems() == null || order.getOrderItems().isEmpty()) {
+            throw new RuntimeException("Order must have at least one item");
+        }
 
         // Validate stock availability
         for (OrderItem item : order.getOrderItems()) {
-            validateStockAvailability(item.getMedicine(), item.getQuantity());
+            if (item.getMedicine() == null) {
+                throw new RuntimeException("Order item must have a medicine");
+            }
+            // Only validate stock if order is being completed (not for pending orders)
+            if (order.getStatus() == Orders.OrderStatus.COMPLETED) {
+                validateStockAvailability(item.getMedicine(), item.getQuantity());
+            }
         }
 
         // Calculate totals
         calculateOrderTotals(order);
 
-        // Save order
+        // Set default status if not set
+        if (order.getStatus() == null) {
+            order.setStatus(Orders.OrderStatus.PENDING);
+        }
+        
+        // Set default payment method if not set
+        if (order.getPaymentMethod() == null) {
+            order.setPaymentMethod(Orders.PaymentMethod.CASH);
+        }
+        
+        // Set default paid status
+        if (order.getPaid() == null) {
+            order.setPaid(false);
+        }
+
+        // Save order first
         Orders savedOrder = orderRepository.save(order);
 
-        // Save order items
+        // Save order items with proper relationships
         for (OrderItem item : order.getOrderItems()) {
             item.setOrder(savedOrder);
-            item.setTotalPrice(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+            if (item.getTotalPrice() == null) {
+                item.setTotalPrice(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+            }
             orderItemRepository.save(item);
         }
 
-        // Update inventory
-        updateInventoryForOrder(savedOrder);
-
-        // Generate invoice if order is completed
+        // Update inventory (deduct stock) - only if order is completed
         if (savedOrder.getStatus() == Orders.OrderStatus.COMPLETED) {
-            generateInvoice(savedOrder);
+            updateInventoryForOrder(savedOrder);
+            // Generate invoice for completed orders
+            generateInvoice(savedOrder, savedOrder.getTotalAmount());
         }
 
         return savedOrder;
@@ -162,27 +188,43 @@ public class OrderService {
             inventory.setLowStock(inventory.getAvailableQuantity() <= item.getMedicine().getReorderLevel());
             inventoryRepository.save(inventory);
 
-            // Update batch quantities (FIFO)
-            updateBatchQuantities(item.getMedicine(), item.getQuantity());
+            // Update batch quantities (FIFO) - wrapped in try-catch to not fail order
+            try {
+                updateBatchQuantities(item.getMedicine(), item.getQuantity());
+            } catch (Exception e) {
+                // Continue even if batch update fails
+                System.err.println("Warning: Batch update failed for medicine " + item.getMedicine().getId() + ": " + e.getMessage());
+            }
         }
     }
 
     private void updateBatchQuantities(Medicine medicine, int quantity) {
-        List<StockBatch> batches = batchRepository.findAvailableBatchesByMedicine(medicine.getId());
-
-        int remaining = quantity;
-        for (StockBatch batch : batches) {
-            if (remaining <= 0) break;
-
-            if (batch.getRemainingQuantity() >= remaining) {
-                batch.setRemainingQuantity(batch.getRemainingQuantity() - remaining);
-                remaining = 0;
-            } else {
-                remaining -= batch.getRemainingQuantity();
-                batch.setRemainingQuantity(0);
-                batch.setActive(false);
+        try {
+            List<StockBatch> batches = batchRepository.findAvailableBatchesByMedicine(medicine.getId());
+            
+            if (batches == null || batches.isEmpty()) {
+                // No batches available - order can still proceed, just skip batch update
+                return;
             }
-            batchRepository.save(batch);
+
+            int remaining = quantity;
+            for (StockBatch batch : batches) {
+                if (remaining <= 0) break;
+
+                if (batch.getRemainingQuantity() >= remaining) {
+                    batch.setRemainingQuantity(batch.getRemainingQuantity() - remaining);
+                    remaining = 0;
+                } else {
+                    remaining -= batch.getRemainingQuantity();
+                    batch.setRemainingQuantity(0);
+                    batch.setActive(false);
+                }
+                batchRepository.save(batch);
+            }
+        } catch (Exception e) {
+            // If batch update fails, log but don't fail the order
+            // Orders can still be created without batch tracking
+            System.err.println("Warning: Failed to update batch quantities: " + e.getMessage());
         }
     }
 

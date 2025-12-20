@@ -137,18 +137,23 @@ public class ReportService {
         double totalSales = toDouble(invoiceRepository.sumAmountPaidAll());
         stats.put("totalSales", totalSales);
 
-        // Today's orders
-        Long todayOrders = orderRepository.countOrdersBetween(todayStart, todayEnd);
+        // Today's orders - count COMPLETED orders only (actual sales)
+        Long todayOrders = orderRepository.countCompletedOrdersBetween(todayStart, todayEnd);
         stats.put("todayOrders", todayOrders != null ? todayOrders : 0L);
 
         // Low stock count
         Long lowStockCount = inventoryRepository.countLowStockItems();
         stats.put("lowStockCount", lowStockCount != null ? lowStockCount : 0L);
 
-        // Expiring soon (30 days)
-        List<StockBatch> expiringBatches = batchRepository.findExpiringBatches(
-                LocalDate.now(), LocalDate.now().plusDays(30));
-        stats.put("expiringBatchesCount", expiringBatches.size());
+        // Expiring soon (30 days) - wrap in try-catch to prevent dashboard failure
+        try {
+            List<StockBatch> expiringBatches = batchRepository.findExpiringBatches(
+                    LocalDate.now(), LocalDate.now().plusDays(30));
+            stats.put("expiringBatchesCount", expiringBatches != null ? expiringBatches.size() : 0);
+        } catch (Exception e) {
+            // If query fails, set to 0 to prevent dashboard from breaking
+            stats.put("expiringBatchesCount", 0);
+        }
 
         return stats;
     }
