@@ -106,21 +106,18 @@ public class BillingController {
             }
 
             order.setOrderItems(orderItems);
-
+            
+            // CRITICAL: Set order as COMPLETED and PAID before creation (billing = immediate sale)
+            order.setStatus(Orders.OrderStatus.COMPLETED);
+            order.setPaid(true);
+            
             // Create order - it will be saved as COMPLETED and invoice will be generated
             Orders createdOrder = orderService.createOrder(order);
-            
-            // Ensure order is completed and paid
-            if (createdOrder.getStatus() != Orders.OrderStatus.COMPLETED) {
-                createdOrder.setStatus(Orders.OrderStatus.COMPLETED);
-                createdOrder.setPaid(true);
-                createdOrder = orderService.completeOrder(createdOrder.getId(), createdOrder.getTotalAmount());
-            }
 
-            redirectAttributes.addFlashAttribute("success", "Sale completed successfully");
+            redirectAttributes.addFlashAttribute("success", "Sale completed successfully! Order #" + createdOrder.getOrderNumber());
             return "redirect:/billing/invoice/" + createdOrder.getId();
         } catch (Exception e) {
-            e.printStackTrace(); // Log the error
+            e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Error creating order: " + e.getMessage());
             return "redirect:/billing";
         }

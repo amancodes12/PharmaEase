@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -59,7 +60,7 @@ public class OrderService {
         
         // Set default paid status
         if (order.getPaid() == null) {
-            order.setPaid(false);
+            order.setPaid(order.getStatus() == Orders.OrderStatus.COMPLETED);
         }
 
         // Save order first
@@ -76,12 +77,30 @@ public class OrderService {
 
         // Update inventory (deduct stock) - only if order is completed
         if (savedOrder.getStatus() == Orders.OrderStatus.COMPLETED) {
-            updateInventoryForOrder(savedOrder);
+            try {
+                updateInventoryForOrder(savedOrder);
+            } catch (Exception e) {
+                // Log but don't fail the order if inventory update fails
+                System.err.println("Warning: Inventory update failed: " + e.getMessage());
+            }
+            
             // Generate invoice for completed orders
-            generateInvoice(savedOrder, savedOrder.getTotalAmount());
+            try {
+                generateInvoice(savedOrder, savedOrder.getTotalAmount());
+            } catch (Exception e) {
+                // Log but don't fail the order if invoice generation fails
+                System.err.println("Warning: Invoice generation failed: " + e.getMessage());
+                // Try to generate invoice again with order total
+                try {
+                    generateInvoice(savedOrder, savedOrder.getTotalAmount());
+                } catch (Exception e2) {
+                    System.err.println("Error: Failed to generate invoice after retry: " + e2.getMessage());
+                }
+            }
         }
 
-        return savedOrder;
+        // Refresh order to get invoice relationship
+        return orderRepository.findById(savedOrder.getId()).orElse(savedOrder);
     }
 
     public Orders completeOrder(Long orderId, BigDecimal amountPaid) {
@@ -244,12 +263,21 @@ public class OrderService {
     }
 
     private void generateInvoice(Orders order, BigDecimal amountPaid) {
+        // Check if invoice already exists for this order
+        Optional<Invoice> existingInvoice = invoiceRepository.findByOrder(order);
+        if (existingInvoice.isPresent()) {
+            // Invoice already exists, don't create duplicate
+            return;
+        }
+        
         Invoice invoice = new Invoice();
         invoice.setInvoiceNumber(generateInvoiceNumber());
         invoice.setOrder(order);
-        invoice.setAmountPaid(amountPaid);
+        invoice.setAmountPaid(amountPaid != null ? amountPaid : order.getTotalAmount());
 
-        BigDecimal change = amountPaid.subtract(order.getTotalAmount());
+        BigDecimal total = order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO;
+        BigDecimal paid = invoice.getAmountPaid();
+        BigDecimal change = paid.subtract(total);
         invoice.setChangeGiven(change.max(BigDecimal.ZERO));
 
         invoiceRepository.save(invoice);

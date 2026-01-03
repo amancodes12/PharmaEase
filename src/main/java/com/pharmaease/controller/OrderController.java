@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/orders")
@@ -22,20 +22,20 @@ public class OrderController {
 
     @GetMapping
     public String listOrders(@RequestParam(required = false) String status, Model model) {
+        // Always get fresh orders from database
         if (status != null && !status.isEmpty()) {
-            model.addAttribute("orders", orderService.getOrdersByStatus(Orders.OrderStatus.valueOf(status)));
+            try {
+                model.addAttribute("orders", orderService.getOrdersByStatus(Orders.OrderStatus.valueOf(status)));
+            } catch (IllegalArgumentException e) {
+                model.addAttribute("orders", orderService.getAllOrders());
+            }
         } else {
-            model.addAttribute("orders", orderService.getAllOrders());
+            // Get all orders, sorted by most recent first
+            List<Orders> allOrders = orderService.getAllOrders();
+            allOrders.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
+            model.addAttribute("orders", allOrders);
         }
         return "orders";
-    }
-
-    @GetMapping("/new")
-    public String newOrderForm(Model model) {
-        model.addAttribute("order", new Orders());
-        model.addAttribute("customers", customerService.getActiveCustomers());
-        model.addAttribute("medicines", medicineService.getActiveMedicines());
-        return "order-form";
     }
 
     @GetMapping("/view/{id}")
@@ -46,7 +46,7 @@ public class OrderController {
 
     @PostMapping("/complete/{id}")
     public String completeOrder(@PathVariable Long id,
-                                @RequestParam BigDecimal amountPaid,
+                                @RequestParam java.math.BigDecimal amountPaid,
                                 RedirectAttributes redirectAttributes) {
         try {
             orderService.completeOrder(id, amountPaid);

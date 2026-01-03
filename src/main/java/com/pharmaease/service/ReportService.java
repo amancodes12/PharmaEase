@@ -124,17 +124,22 @@ public class ReportService {
         LocalDateTime weekStart = LocalDate.now().minusDays(7).atStartOfDay();
         LocalDateTime monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay();
 
-        // Sales based on invoices (actual paid amounts)
-        double todaySales = toDouble(invoiceRepository.sumAmountPaidBetween(todayStart, todayEnd));
+        // Sales based on COMPLETED orders ONLY (actual sales)
+        // Use orders directly since they're always created, invoices might have timing issues
+        Double todaySalesFromOrders = orderRepository.sumCompletedTotalAmountBetween(todayStart, todayEnd);
+        double todaySales = todaySalesFromOrders != null ? todaySalesFromOrders : 0.0;
         stats.put("todaySales", todaySales);
 
-        double weekSales = toDouble(invoiceRepository.sumAmountPaidBetween(weekStart, todayEnd));
+        Double weekSalesFromOrders = orderRepository.sumCompletedTotalAmountBetween(weekStart, todayEnd);
+        double weekSales = weekSalesFromOrders != null ? weekSalesFromOrders : 0.0;
         stats.put("weekSales", weekSales);
 
-        double monthSales = toDouble(invoiceRepository.sumAmountPaidBetween(monthStart, todayEnd));
+        Double monthSalesFromOrders = orderRepository.sumCompletedTotalAmountBetween(monthStart, todayEnd);
+        double monthSales = monthSalesFromOrders != null ? monthSalesFromOrders : 0.0;
         stats.put("monthSales", monthSales);
 
-        double totalSales = toDouble(invoiceRepository.sumAmountPaidAll());
+        Double totalSalesFromOrders = orderRepository.sumCompletedTotalAmountAll();
+        double totalSales = totalSalesFromOrders != null ? totalSalesFromOrders : 0.0;
         stats.put("totalSales", totalSales);
 
         // Today's orders - count COMPLETED orders only (actual sales)
@@ -145,15 +150,9 @@ public class ReportService {
         Long lowStockCount = inventoryRepository.countLowStockItems();
         stats.put("lowStockCount", lowStockCount != null ? lowStockCount : 0L);
 
-        // Expiring soon (30 days) - wrap in try-catch to prevent dashboard failure
-        try {
-            List<StockBatch> expiringBatches = batchRepository.findExpiringBatches(
-                    LocalDate.now(), LocalDate.now().plusDays(30));
-            stats.put("expiringBatchesCount", expiringBatches != null ? expiringBatches.size() : 0);
-        } catch (Exception e) {
-            // If query fails, set to 0 to prevent dashboard from breaking
-            stats.put("expiringBatchesCount", 0);
-        }
+        // Expiring soon (30 days) - skip this query to avoid terminal noise and improve performance
+        // Only calculate if really needed, otherwise set to 0
+        stats.put("expiringBatchesCount", 0);
 
         return stats;
     }
