@@ -169,7 +169,6 @@ http://localhost:8080/pharmaease
 * Invoice PDF download
 * GST & discount handling
 * Supplier management
-* Stock expiry alerts
 * Mobile version
 * Real-time analytics dashboard
 
