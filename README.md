@@ -30,7 +30,7 @@ Built with a **Java Springboot backend**, **MySQL database**, and a **clean, min
 ### **📦 Inventory Management**
 
 * Stock monitoring
-* Alerts for low stock (planned)
+* Alerts for low stock
 * Batch update options
 
 ### **📊 Reports & Dashboard**
