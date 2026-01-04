@@ -42,7 +42,6 @@ Built with a **Java Springboot backend**, **MySQL database**, and a **clean, min
 ### **🎨 UI / UX**
 
 * Tailwind-based minimal, professional design
-* Inspired by FitnessHub UI
 * Fully responsive layout
 * Smooth transitions & clean color palette
 
@@ -161,7 +160,7 @@ http://localhost:8080/pharmaease
 * Medicine module frontend completed
 * Billing UI with auto-calculation added
 * Database set up in MySQL
-* Backend servlets in development
+* Backend is in development
 
 ---
 
@@ -178,7 +177,7 @@ http://localhost:8080/pharmaease
 
 ## 👤 **Author**
 
-**Aman Hawaldar Yadav**
+**Aman Yadav**
 Final-Year IT Student
 
 * GitHub: [https://github.com/amancodes12](https://github.com/amancodes12)
