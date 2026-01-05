@@ -40,12 +40,18 @@ public class BillingController {
                               Authentication authentication,
                               RedirectAttributes redirectAttributes) {
         try {
+            System.out.println("=== CREATING NEW SALE ===");
+            
             // Create new order
             Orders order = new Orders();
             
             // Set customer if provided
             if (customerId != null && customerId > 0) {
-                order.setCustomer(customerService.getCustomerById(customerId));
+                Customer customer = customerService.getCustomerById(customerId);
+                order.setCustomer(customer);
+                System.out.println("Customer: " + customer.getName());
+            } else {
+                System.out.println("Walk-in customer");
             }
 
             // Set pharmacist from authenticated user
@@ -53,6 +59,7 @@ public class BillingController {
             Pharmacist pharmacist = pharmacistService.getPharmacistByEmail(email)
                     .orElseThrow(() -> new RuntimeException("Pharmacist not found"));
             order.setPharmacist(pharmacist);
+            System.out.println("Pharmacist: " + pharmacist.getName());
 
             // Set payment method
             if (paymentMethod != null && !paymentMethod.isEmpty()) {
@@ -64,6 +71,7 @@ public class BillingController {
             } else {
                 order.setPaymentMethod(Orders.PaymentMethod.CASH);
             }
+            System.out.println("Payment Method: " + order.getPaymentMethod());
 
             // Set discount
             order.setDiscount(discount != null ? discount : BigDecimal.ZERO);
@@ -91,9 +99,10 @@ public class BillingController {
                             item.setQuantity(quantity);
                             item.setUnitPrice(unitPrice);
                             orderItems.add(item);
+                            System.out.println("Added item: " + medicine.getName() + " x " + quantity);
                         }
                     } catch (Exception e) {
-                        // Skip invalid items
+                        System.err.println("Error parsing item at index " + index + ": " + e.getMessage());
                     }
                 }
                 index++;
@@ -106,33 +115,51 @@ public class BillingController {
             }
 
             order.setOrderItems(orderItems);
+            System.out.println("Total items: " + orderItems.size());
             
-            // CRITICAL: Set order as COMPLETED and PAID before creation (billing = immediate sale)
+            // CRITICAL: Set order as COMPLETED and PAID (billing = immediate sale)
             order.setStatus(Orders.OrderStatus.COMPLETED);
             order.setPaid(true);
             
-            // Create order - it will be saved as COMPLETED and invoice will be generated
+            // Create order - will auto-generate invoice and update inventory
             Orders createdOrder = orderService.createOrder(order);
+            
+            System.out.println("✅ Order created successfully: " + createdOrder.getOrderNumber());
+            System.out.println("Order ID: " + createdOrder.getId());
+            System.out.println("Status: " + createdOrder.getStatus());
+            System.out.println("Total Amount: ₹" + createdOrder.getTotalAmount());
 
             redirectAttributes.addFlashAttribute("success", "Sale completed successfully! Order #" + createdOrder.getOrderNumber());
             return "redirect:/billing/invoice/" + createdOrder.getId();
+            
         } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("❌ Error creating order: " + e.getMessage());
             redirectAttributes.addFlashAttribute("error", "Error creating order: " + e.getMessage());
             return "redirect:/billing";
         }
     }
 
     @GetMapping("/invoice/{orderId}")
-    public String viewInvoice(@PathVariable Long orderId, Model model) {
+    public String viewInvoice(@PathVariable Long orderId, Model model, RedirectAttributes redirectAttributes) {
         try {
             Orders order = orderService.getOrderById(orderId);
-            Invoice invoice = billingService.getInvoiceByOrder(order);
+            
+            try {
+                Invoice invoice = billingService.getInvoiceByOrder(order);
+                model.addAttribute("invoice", invoice);
+            } catch (Exception e) {
+                System.err.println("Invoice not found for order: " + orderId + " - " + e.getMessage());
+                // Invoice might not exist yet, that's okay
+                model.addAttribute("invoice", null);
+            }
+            
             model.addAttribute("order", order);
-            model.addAttribute("invoice", invoice);
             return "invoice";
+            
         } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Order not found: " + e.getMessage());
             return "redirect:/billing";
         }
     }

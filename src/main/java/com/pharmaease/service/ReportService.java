@@ -13,6 +13,7 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -145,6 +146,19 @@ public class ReportService {
         // Today's orders - count COMPLETED orders only (actual sales)
         Long todayOrders = orderRepository.countCompletedOrdersBetween(todayStart, todayEnd);
         stats.put("todayOrders", todayOrders != null ? todayOrders : 0L);
+        
+        // Verify by getting actual orders
+        List<Orders> allCompletedToday = orderRepository.findByCreatedAtBetween(todayStart, todayEnd)
+                .stream()
+                .filter(o -> o.getStatus() == Orders.OrderStatus.COMPLETED)
+                .collect(Collectors.toList());
+        System.out.println("📊 Dashboard Stats - Today Sales: ₹" + todaySales + ", Today Orders (query): " + todayOrders + ", Today Orders (actual): " + allCompletedToday.size() + ", Total Sales: ₹" + totalSales);
+        
+        // If query doesn't match actual, use actual count
+        if (todayOrders == null || todayOrders != allCompletedToday.size()) {
+            stats.put("todayOrders", (long) allCompletedToday.size());
+            System.out.println("⚠️ Query mismatch detected - using actual count: " + allCompletedToday.size());
+        }
 
         // Low stock count
         Long lowStockCount = inventoryRepository.countLowStockItems();

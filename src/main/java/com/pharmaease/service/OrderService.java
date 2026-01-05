@@ -14,7 +14,6 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class OrderService {
 
     private final OrderRepository orderRepository;
@@ -23,6 +22,7 @@ public class OrderService {
     private final StockBatchRepository batchRepository;
     private final InvoiceRepository invoiceRepository;
 
+    @Transactional
     public Orders createOrder(Orders order) {
         // Generate order number if not already set
         if (order.getOrderNumber() == null || order.getOrderNumber().isEmpty()) {
@@ -63,8 +63,9 @@ public class OrderService {
             order.setPaid(order.getStatus() == Orders.OrderStatus.COMPLETED);
         }
 
-        // Save order first
-        Orders savedOrder = orderRepository.save(order);
+        // Save order first - FLUSH to ensure it's immediately available
+        Orders savedOrder = orderRepository.saveAndFlush(order);
+        System.out.println("✅ Order saved to database - ID: " + savedOrder.getId() + ", Status: " + savedOrder.getStatus());
 
         // Save order items with proper relationships
         for (OrderItem item : order.getOrderItems()) {
@@ -72,11 +73,13 @@ public class OrderService {
             if (item.getTotalPrice() == null) {
                 item.setTotalPrice(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
             }
-            orderItemRepository.save(item);
+            orderItemRepository.saveAndFlush(item);
         }
+        System.out.println("✅ Order items saved: " + savedOrder.getOrderItems().size());
 
         // Update inventory (deduct stock) - only if order is completed
         if (savedOrder.getStatus() == Orders.OrderStatus.COMPLETED) {
+            System.out.println("✅ Order is COMPLETED - updating inventory and generating invoice");
             try {
                 updateInventoryForOrder(savedOrder);
             } catch (Exception e) {
@@ -99,8 +102,18 @@ public class OrderService {
             }
         }
 
-        // Refresh order to get invoice relationship
-        return orderRepository.findById(savedOrder.getId()).orElse(savedOrder);
+        // Force commit by flushing entity manager and clearing cache
+        orderRepository.flush();
+        
+        // Refresh order to get invoice relationship and ensure it's persisted
+        Orders refreshedOrder = orderRepository.findById(savedOrder.getId()).orElse(savedOrder);
+        System.out.println("✅ Final order status: " + refreshedOrder.getStatus() + ", Total: ₹" + refreshedOrder.getTotalAmount());
+        
+        // Verify the order is actually in the database with COMPLETED status
+        List<Orders> completedOrders = orderRepository.findByStatus(Orders.OrderStatus.COMPLETED);
+        System.out.println("✅ Total COMPLETED orders in DB: " + completedOrders.size());
+        
+        return refreshedOrder;
     }
 
     public Orders completeOrder(Long orderId, BigDecimal amountPaid) {

@@ -18,9 +18,9 @@ public class DashboardController {
 
     @GetMapping
     public String dashboard(Model model) {
-        // Get fresh statistics every time
+        // Get fresh statistics every time dashboard is loaded
         Map<String, Object> stats = reportService.getDashboardStatistics();
         model.addAttribute("stats", stats);
-        return "dashboards";
+        return "dashboards";  // Template file is dashboards.html
     }
 }
