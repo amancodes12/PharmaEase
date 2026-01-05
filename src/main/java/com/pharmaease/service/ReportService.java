@@ -125,40 +125,67 @@ public class ReportService {
         LocalDateTime weekStart = LocalDate.now().minusDays(7).atStartOfDay();
         LocalDateTime monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay();
 
-        // Sales based on COMPLETED orders ONLY (actual sales)
-        // Use orders directly since they're always created, invoices might have timing issues
-        Double todaySalesFromOrders = orderRepository.sumCompletedTotalAmountBetween(todayStart, todayEnd);
-        double todaySales = todaySalesFromOrders != null ? todaySalesFromOrders : 0.0;
-        stats.put("todaySales", todaySales);
-
-        Double weekSalesFromOrders = orderRepository.sumCompletedTotalAmountBetween(weekStart, todayEnd);
-        double weekSales = weekSalesFromOrders != null ? weekSalesFromOrders : 0.0;
-        stats.put("weekSales", weekSales);
-
-        Double monthSalesFromOrders = orderRepository.sumCompletedTotalAmountBetween(monthStart, todayEnd);
-        double monthSales = monthSalesFromOrders != null ? monthSalesFromOrders : 0.0;
-        stats.put("monthSales", monthSales);
-
-        Double totalSalesFromOrders = orderRepository.sumCompletedTotalAmountAll();
-        double totalSales = totalSalesFromOrders != null ? totalSalesFromOrders : 0.0;
-        stats.put("totalSales", totalSales);
-
-        // Today's orders - count COMPLETED orders only (actual sales)
-        Long todayOrders = orderRepository.countCompletedOrdersBetween(todayStart, todayEnd);
-        stats.put("todayOrders", todayOrders != null ? todayOrders : 0L);
-        
-        // Verify by getting actual orders
-        List<Orders> allCompletedToday = orderRepository.findByCreatedAtBetween(todayStart, todayEnd)
-                .stream()
+        // Get ALL orders and filter in memory - more reliable than complex queries
+        List<Orders> allOrders = orderRepository.findAll();
+        List<Orders> completedOrders = allOrders.stream()
                 .filter(o -> o.getStatus() == Orders.OrderStatus.COMPLETED)
                 .collect(Collectors.toList());
-        System.out.println("📊 Dashboard Stats - Today Sales: ₹" + todaySales + ", Today Orders (query): " + todayOrders + ", Today Orders (actual): " + allCompletedToday.size() + ", Total Sales: ₹" + totalSales);
         
-        // If query doesn't match actual, use actual count
-        if (todayOrders == null || todayOrders != allCompletedToday.size()) {
-            stats.put("todayOrders", (long) allCompletedToday.size());
-            System.out.println("⚠️ Query mismatch detected - using actual count: " + allCompletedToday.size());
-        }
+        System.out.println("📊 Total orders in DB: " + allOrders.size() + ", COMPLETED: " + completedOrders.size());
+
+        // Calculate today's sales and orders by filtering in memory
+        List<Orders> todayCompleted = completedOrders.stream()
+                .filter(o -> {
+                    LocalDateTime created = o.getCreatedAt();
+                    return created != null && 
+                           !created.isBefore(todayStart) && 
+                           !created.isAfter(todayEnd);
+                })
+                .collect(Collectors.toList());
+        
+        double todaySales = todayCompleted.stream()
+                .mapToDouble(o -> o.getTotalAmount() != null ? o.getTotalAmount().doubleValue() : 0.0)
+                .sum();
+        stats.put("todaySales", todaySales);
+        stats.put("todayOrders", (long) todayCompleted.size());
+        
+        System.out.println("📊 Today - Orders: " + todayCompleted.size() + ", Sales: ₹" + todaySales);
+
+        // Week sales
+        List<Orders> weekCompleted = completedOrders.stream()
+                .filter(o -> {
+                    LocalDateTime created = o.getCreatedAt();
+                    return created != null && 
+                           !created.isBefore(weekStart) && 
+                           !created.isAfter(todayEnd);
+                })
+                .collect(Collectors.toList());
+        double weekSales = weekCompleted.stream()
+                .mapToDouble(o -> o.getTotalAmount() != null ? o.getTotalAmount().doubleValue() : 0.0)
+                .sum();
+        stats.put("weekSales", weekSales);
+
+        // Month sales
+        List<Orders> monthCompleted = completedOrders.stream()
+                .filter(o -> {
+                    LocalDateTime created = o.getCreatedAt();
+                    return created != null && 
+                           !created.isBefore(monthStart) && 
+                           !created.isAfter(todayEnd);
+                })
+                .collect(Collectors.toList());
+        double monthSales = monthCompleted.stream()
+                .mapToDouble(o -> o.getTotalAmount() != null ? o.getTotalAmount().doubleValue() : 0.0)
+                .sum();
+        stats.put("monthSales", monthSales);
+
+        // Total sales
+        double totalSales = completedOrders.stream()
+                .mapToDouble(o -> o.getTotalAmount() != null ? o.getTotalAmount().doubleValue() : 0.0)
+                .sum();
+        stats.put("totalSales", totalSales);
+        
+        System.out.println("📊 Final Stats - Total Sales: ₹" + totalSales + ", Today Orders: " + todayCompleted.size() + ", Today Sales: ₹" + todaySales);
 
         // Low stock count
         Long lowStockCount = inventoryRepository.countLowStockItems();

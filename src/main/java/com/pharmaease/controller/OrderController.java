@@ -24,22 +24,31 @@ public class OrderController {
     @GetMapping
     public String listOrders(@RequestParam(required = false) String status, Model model) {
         try {
-            List<Orders> orders;
+            // Always get fresh orders directly from repository
+            List<Orders> orders = orderService.getAllOrders();
+            System.out.println("📋 Orders page - Total orders fetched: " + orders.size());
             
             if (status != null && !status.isEmpty()) {
                 try {
                     Orders.OrderStatus orderStatus = Orders.OrderStatus.valueOf(status.toUpperCase());
-                    orders = orderService.getOrdersByStatus(orderStatus);
+                    orders = orders.stream()
+                            .filter(o -> o.getStatus() == orderStatus)
+                            .collect(java.util.stream.Collectors.toList());
+                    System.out.println("📋 Filtered by " + status + ": " + orders.size() + " orders");
                 } catch (IllegalArgumentException e) {
-                    orders = orderService.getAllOrders();
+                    // Keep all orders if invalid status
                 }
-            } else {
-                // Get ALL orders including COMPLETED ones from billing
-                orders = orderService.getAllOrders();
             }
             
             // Sort by most recent first
-            orders.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
+            orders.sort((o1, o2) -> {
+                if (o1.getCreatedAt() == null) return 1;
+                if (o2.getCreatedAt() == null) return -1;
+                return o2.getCreatedAt().compareTo(o1.getCreatedAt());
+            });
+            
+            // Log order details
+            orders.forEach(o -> System.out.println("  - Order #" + o.getOrderNumber() + " | Status: " + o.getStatus() + " | Amount: ₹" + o.getTotalAmount() + " | Date: " + o.getCreatedAt()));
             
             model.addAttribute("orders", orders);
             return "orders";
