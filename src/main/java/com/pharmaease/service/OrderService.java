@@ -114,23 +114,10 @@ public class OrderService {
             }
         }
 
-        // Force commit by flushing entity manager and clearing cache
-        orderRepository.flush();
-        entityManager.flush();
-        entityManager.clear(); // Clear persistence context to force fresh reads
-        
-        // Refresh order to get invoice relationship and ensure it's persisted
-        Orders refreshedOrder = orderRepository.findById(savedOrder.getId()).orElse(savedOrder);
-        System.out.println("✅ Final order status: " + refreshedOrder.getStatus() + ", Total: ₹" + refreshedOrder.getTotalAmount() + ", Created: " + refreshedOrder.getCreatedAt());
-        
-        // Verify the order is actually in the database with COMPLETED status
-        // Use a fresh query after clearing the entity manager
-        entityManager.clear();
-        List<Orders> completedOrders = orderRepository.findByStatus(Orders.OrderStatus.COMPLETED);
-        System.out.println("✅ Total COMPLETED orders in DB (after clear): " + completedOrders.size());
-        completedOrders.forEach(o -> System.out.println("  - Order #" + o.getOrderNumber() + " | Status: " + o.getStatus() + " | Amount: ₹" + o.getTotalAmount()));
-        
-        return refreshedOrder;
+        // Return the saved and flushed order
+        System.out.println("✅ Final order status: " + savedOrder.getStatus() + ", Total: ₹" + savedOrder.getTotalAmount() + ", Created: " + savedOrder.getCreatedAt());
+
+        return savedOrder;
     }
 
     public Orders completeOrder(Long orderId, BigDecimal amountPaid) {

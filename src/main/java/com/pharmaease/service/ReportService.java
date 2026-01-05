@@ -25,6 +25,7 @@ public class ReportService {
     private final InventoryRepository inventoryRepository;
     private final StockBatchRepository batchRepository;
     private final InvoiceRepository invoiceRepository;
+    private final jakarta.persistence.EntityManager entityManager;
 
     public Report generateSalesReport(LocalDate startDate, LocalDate endDate, Report.ReportType reportType, Pharmacist pharmacist) {
         LocalDateTime start = startDate.atStartOfDay();
@@ -117,6 +118,7 @@ public class ReportService {
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Map<String, Object> getDashboardStatistics() {
+
         Map<String, Object> stats = new HashMap<>();
 
         // Define common date ranges

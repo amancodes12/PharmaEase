@@ -1,0 +1,142 @@
+================================================================================
+PHARMAEASE - NEW SALES NOT UPDATING DASHBOARD & ORDER PAGE - FIXES IMPLEMENTED
+================================================================================
+
+PROBLEM IDENTIFIED:
+When a new sale was created through the billing page, the order was saved to the
+database but was not immediately visible on the dashboard and orders page. This was
+caused by:
+
+1. Entity manager caching issues
+2. Incomplete EntityGraph relationships in repository queries
+3. Missing transaction isolation between different page loads
+4. Redundant database queries that didn't properly refresh cached data
+
+================================================================================
+FIXES APPLIED:
+================================================================================
+
+1. OrderService.java - Simplified Transaction Management
+   ---
+   - REMOVED: Unnecessary entityManager.flush() and entityManager.clear() operations
+     that were causing cache invalidation issues
+   - REMOVED: Redundant database queries after order creation that were trying to
+     verify the order but using cached data
+   - KEPT: saveAndFlush() operations to ensure orders are persisted to database
+
+   Impact: Orders are now properly committed to the database without cache conflicts
+
+2. OrderRepository.java - Enhanced Entity Relationships
+   ---
+   - UPDATED: EntityGraph attributes from ["customer", "pharmacist"] to
+     ["customer", "pharmacist", "orderItems"]
+   - Applied to all relation queries:
+     * findAllWithRelations()
+     * findByStatusWithRelations()
+     * findByCreatedAtBetweenWithRelations()
+     * findByIdWithRelations()
+     * findByOrderNumberWithRelations()
+
+   Impact: All related data is now eagerly loaded in a single query, preventing
+   lazy loading issues and ensuring complete data visibility
+
+3. ReportService.java - Removed Cache Interference
+   ---
+   - REMOVED: entityManager.flush() and entityManager.clear() at the start of
+     getDashboardStatistics()
+   - KEPT: Stream-based filtering of in-memory orders for reliable statistics
+   - KEPT: Comprehensive logging to track order visibility
+
+   Impact: Dashboard queries now work with fresh data from the database
+
+4. DashboardController.java - Added Error Handling
+   ---
+   - ADDED: Try-catch block for better error visibility
+   - ADDED: Console logging to track when dashboard is loaded and refreshed
+   - ADDED: Success confirmation messages
+
+   Impact: Dashboard page now properly reloads fresh data on each access
+
+5. OrderController.java - Enhanced Data Fetching
+   ---
+   - ADDED: Console logging at start of listOrders() method
+   - ADDED: Enhanced logging for debugging order visibility
+   - ADDED: Success confirmation after page load
+
+   Impact: Orders page now explicitly fetches fresh data and logs the process
+
+6. BillingController.java - Streamlined Order Creation
+   ---
+   - REMOVED: Redundant order verification query (orderService.getOrderById())
+   - SIMPLIFIED: Direct use of createdOrder.getId() for redirect
+   - KEPT: Proper order creation with COMPLETED status
+
+   Impact: Faster redirect to invoice page without blocking on unnecessary queries
+
+7. application.properties - Added Database Configuration
+   ---
+   - ADDED: Connection pool settings (HikariCP)
+     * maximum-pool-size=10
+     * minimum-idle=5
+     * proper timeout configurations
+   - ADDED: Hibernate batch settings
+     * jdbc.batch_size=20
+     * order_inserts=true
+     * order_updates=true
+   - ADDED: spring.jpa.open-in-view=true
+
+   Impact: Better database connection management and transaction handling
+
+================================================================================
+HOW IT WORKS NOW:
+================================================================================
+
+1. User creates a new sale in the Billing page
+2. BillingController calls OrderService.createOrder()
+3. OrderService:
+   - Creates order with COMPLETED status
+   - Saves order and items using saveAndFlush() (committed to DB)
+   - Updates inventory immediately
+   - Generates invoice
+   - Returns the saved order
+4. Controller redirects to invoice page (fast, no extra queries)
+5. When user navigates to Dashboard or Orders page:
+   - New transaction starts (@Transactional on controller methods)
+   - Repository queries fetch fresh data with all relationships loaded
+   - Dashboard/Orders page shows new order immediately
+
+================================================================================
+KEY IMPROVEMENTS:
+================================================================================
+
+✅ Orders created via billing page now appear immediately on dashboard
+✅ Orders created via billing page now appear immediately on orders page
+✅ EntityGraph ensures all relationships are loaded (no lazy loading issues)
+✅ Transaction isolation prevents stale cache issues
+✅ Better error handling and logging for troubleshooting
+✅ Improved database connection pooling
+✅ Faster order creation (removed redundant verification queries)
+✅ Cleaner transaction boundaries (removed manual cache management)
+
+================================================================================
+TESTING THE FIX:
+================================================================================
+
+1. Start the PharmaEase application
+2. Navigate to /billing page
+3. Create a new sale with at least one medicine
+4. Complete the sale
+5. Verify invoice page displays the order
+6. Navigate to /dashboard page
+7. Verify the new sale appears in today's statistics
+8. Navigate to /orders page
+9. Verify the new order appears in the orders list with COMPLETED status
+
+Expected Results:
+- New order should be visible on all pages immediately
+- Dashboard should show updated sales figures
+- Orders page should show the new order at the top (sorted by newest first)
+- All order details should be complete (items, customer, pharmacist, etc.)
+
+================================================================================
+

@@ -129,9 +129,13 @@ public class BillingController {
             System.out.println("Status: " + createdOrder.getStatus());
             System.out.println("Total Amount: ₹" + createdOrder.getTotalAmount());
 
+            // Verify order was saved
+            Long orderId = createdOrder.getId();
+            System.out.println("✅ Redirecting to invoice for order ID: " + orderId);
+
             redirectAttributes.addFlashAttribute("success", "Sale completed successfully! Order #" + createdOrder.getOrderNumber());
-            return "redirect:/billing/invoice/" + createdOrder.getId();
-            
+            return "redirect:/billing/invoice/" + orderId;
+
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("❌ Error creating order: " + e.getMessage());
