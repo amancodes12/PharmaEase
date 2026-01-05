@@ -4,6 +4,7 @@ import com.pharmaease.model.Orders;
 import com.pharmaease.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -22,9 +23,11 @@ public class OrderController {
     private final PharmacistService pharmacistService;
 
     @GetMapping
+    @Transactional(readOnly = true)
     public String listOrders(@RequestParam(required = false) String status, Model model) {
         try {
             // Always get fresh orders directly from repository
+            // Customer and pharmacist are now EAGER, so they'll be loaded automatically
             List<Orders> orders = orderService.getAllOrders();
             System.out.println("📋 Orders page - Total orders fetched: " + orders.size());
             

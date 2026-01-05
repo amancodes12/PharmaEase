@@ -3,6 +3,7 @@ package com.pharmaease.repository;
 import com.pharmaease.model.Customer;
 import com.pharmaease.model.Orders;
 import com.pharmaease.model.Pharmacist;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -40,4 +41,26 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
 
     @Query("SELECT SUM(o.totalAmount) FROM Orders o WHERE o.status = 'COMPLETED'")
     Double sumCompletedTotalAmountAll();
+    
+    // Eagerly fetch customer and pharmacist to avoid lazy loading issues
+    // Using EntityGraph for better performance and to avoid DISTINCT issues
+    @EntityGraph(attributePaths = {"customer", "pharmacist"})
+    @Query("SELECT o FROM Orders o ORDER BY o.createdAt DESC")
+    List<Orders> findAllWithRelations();
+    
+    @EntityGraph(attributePaths = {"customer", "pharmacist"})
+    @Query("SELECT o FROM Orders o WHERE o.status = :status ORDER BY o.createdAt DESC")
+    List<Orders> findByStatusWithRelations(@Param("status") Orders.OrderStatus status);
+    
+    @EntityGraph(attributePaths = {"customer", "pharmacist"})
+    @Query("SELECT o FROM Orders o WHERE o.createdAt BETWEEN :start AND :end ORDER BY o.createdAt DESC")
+    List<Orders> findByCreatedAtBetweenWithRelations(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+    
+    @EntityGraph(attributePaths = {"customer", "pharmacist"})
+    @Query("SELECT o FROM Orders o WHERE o.id = :id")
+    Optional<Orders> findByIdWithRelations(@Param("id") Long id);
+    
+    @EntityGraph(attributePaths = {"customer", "pharmacist"})
+    @Query("SELECT o FROM Orders o WHERE o.orderNumber = :orderNumber")
+    Optional<Orders> findByOrderNumberWithRelations(@Param("orderNumber") String orderNumber);
 }

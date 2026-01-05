@@ -2,8 +2,10 @@ package com.pharmaease.service;
 
 import com.pharmaease.model.*;
 import com.pharmaease.repository.*;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -21,8 +23,9 @@ public class OrderService {
     private final InventoryRepository inventoryRepository;
     private final StockBatchRepository batchRepository;
     private final InvoiceRepository invoiceRepository;
+    private final EntityManager entityManager;
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Orders createOrder(Orders order) {
         // Generate order number if not already set
         if (order.getOrderNumber() == null || order.getOrderNumber().isEmpty()) {
@@ -62,9 +65,18 @@ public class OrderService {
         if (order.getPaid() == null) {
             order.setPaid(order.getStatus() == Orders.OrderStatus.COMPLETED);
         }
+        
+        // Ensure createdAt is set (should be automatic with @CreationTimestamp, but ensure it's set)
+        if (order.getCreatedAt() == null) {
+            order.setCreatedAt(LocalDateTime.now());
+        }
 
         // Save order first - FLUSH to ensure it's immediately available
         Orders savedOrder = orderRepository.saveAndFlush(order);
+        System.out.println("✅ Order saved - ID: " + savedOrder.getId() + 
+                         " | Status: " + savedOrder.getStatus() + 
+                         " | CreatedAt: " + savedOrder.getCreatedAt() + 
+                         " | Total: ₹" + savedOrder.getTotalAmount());
         System.out.println("✅ Order saved to database - ID: " + savedOrder.getId() + ", Status: " + savedOrder.getStatus());
 
         // Save order items with proper relationships
@@ -104,14 +116,19 @@ public class OrderService {
 
         // Force commit by flushing entity manager and clearing cache
         orderRepository.flush();
+        entityManager.flush();
+        entityManager.clear(); // Clear persistence context to force fresh reads
         
         // Refresh order to get invoice relationship and ensure it's persisted
         Orders refreshedOrder = orderRepository.findById(savedOrder.getId()).orElse(savedOrder);
-        System.out.println("✅ Final order status: " + refreshedOrder.getStatus() + ", Total: ₹" + refreshedOrder.getTotalAmount());
+        System.out.println("✅ Final order status: " + refreshedOrder.getStatus() + ", Total: ₹" + refreshedOrder.getTotalAmount() + ", Created: " + refreshedOrder.getCreatedAt());
         
         // Verify the order is actually in the database with COMPLETED status
+        // Use a fresh query after clearing the entity manager
+        entityManager.clear();
         List<Orders> completedOrders = orderRepository.findByStatus(Orders.OrderStatus.COMPLETED);
-        System.out.println("✅ Total COMPLETED orders in DB: " + completedOrders.size());
+        System.out.println("✅ Total COMPLETED orders in DB (after clear): " + completedOrders.size());
+        completedOrders.forEach(o -> System.out.println("  - Order #" + o.getOrderNumber() + " | Status: " + o.getStatus() + " | Amount: ₹" + o.getTotalAmount()));
         
         return refreshedOrder;
     }
@@ -150,21 +167,31 @@ public class OrderService {
     }
 
     public Orders getOrderById(Long id) {
-        return orderRepository.findById(id)
+        return orderRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
     public Orders getOrderByNumber(String orderNumber) {
-        return orderRepository.findByOrderNumber(orderNumber)
+        return orderRepository.findByOrderNumberWithRelations(orderNumber)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Orders> getAllOrders() {
-        return orderRepository.findAll();
+        // Customer and pharmacist are now EAGER, so they'll be loaded automatically
+        try {
+            List<Orders> orders = orderRepository.findAllWithRelations();
+            System.out.println("✅ Fetched " + orders.size() + " orders with relationships");
+            return orders;
+        } catch (Exception e) {
+            System.err.println("❌ Error fetching orders: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     public List<Orders> getOrdersByStatus(Orders.OrderStatus status) {
-        return orderRepository.findByStatus(status);
+        return orderRepository.findByStatusWithRelations(status);
     }
 
     public List<Orders> getRecentOrders(int days) {
@@ -173,7 +200,7 @@ public class OrderService {
     }
 
     public List<Orders> getOrdersBetweenDates(LocalDateTime start, LocalDateTime end) {
-        return orderRepository.findByCreatedAtBetween(start, end);
+        return orderRepository.findByCreatedAtBetweenWithRelations(start, end);
     }
 
     private String generateOrderNumber() {

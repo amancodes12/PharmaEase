@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ReportService {
 
     private final ReportRepository reportRepository;
@@ -31,7 +30,7 @@ public class ReportService {
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
 
-        List<Orders> orders = orderRepository.findByCreatedAtBetween(start, end);
+        List<Orders> orders = orderRepository.findByCreatedAtBetweenWithRelations(start, end);
 
         BigDecimal totalSales = orders.stream()
                 .filter(o -> o.getStatus() == Orders.OrderStatus.COMPLETED)
@@ -116,6 +115,7 @@ public class ReportService {
                 .orElseThrow(() -> new RuntimeException("Report not found"));
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Map<String, Object> getDashboardStatistics() {
         Map<String, Object> stats = new HashMap<>();
 
@@ -126,12 +126,26 @@ public class ReportService {
         LocalDateTime monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay();
 
         // Get ALL orders and filter in memory - more reliable than complex queries
-        List<Orders> allOrders = orderRepository.findAll();
+        // Use a fresh query to ensure we see all committed data
+        // Use findAllWithRelations to eagerly load customer and pharmacist
+        List<Orders> allOrders = orderRepository.findAllWithRelations();
         List<Orders> completedOrders = allOrders.stream()
                 .filter(o -> o.getStatus() == Orders.OrderStatus.COMPLETED)
                 .collect(Collectors.toList());
         
-        System.out.println("📊 Total orders in DB: " + allOrders.size() + ", COMPLETED: " + completedOrders.size());
+        System.out.println("📊 Dashboard Query - Total orders in DB: " + allOrders.size() + ", COMPLETED: " + completedOrders.size());
+        
+        // Log all completed orders for debugging
+        if (!completedOrders.isEmpty()) {
+            System.out.println("📊 COMPLETED Orders Details:");
+            completedOrders.forEach(o -> {
+                System.out.println("  - ID: " + o.getId() + 
+                                 " | Order#: " + o.getOrderNumber() + 
+                                 " | Status: " + o.getStatus() + 
+                                 " | Amount: ₹" + o.getTotalAmount() + 
+                                 " | Created: " + o.getCreatedAt());
+            });
+        }
 
         // Calculate today's sales and orders by filtering in memory
         List<Orders> todayCompleted = completedOrders.stream()
