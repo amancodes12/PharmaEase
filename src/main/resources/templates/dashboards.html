@@ -293,24 +293,24 @@
         }
     }
 
-    // Auto-refresh dashboard every 5 seconds to show latest sales
-    let refreshInterval = setInterval(function() {
-        // Only refresh if page is visible
-        if (!document.hidden) {
-            location.reload();
-        }
-    }, 5000);
+    // Auto-refresh disabled - uncomment below to enable auto-refresh every 5 seconds
+    // let refreshInterval = setInterval(function() {
+    //     // Only refresh if page is visible
+    //     if (!document.hidden) {
+    //         location.reload();
+    //     }
+    // }, 5000);
 
     // Clear interval when page is hidden
-    document.addEventListener('visibilitychange', function() {
-        if (document.hidden) {
-            clearInterval(refreshInterval);
-        } else {
-            refreshInterval = setInterval(function() {
-                location.reload();
-            }, 5000);
-        }
-    });
+    // document.addEventListener('visibilitychange', function() {
+    //     if (document.hidden) {
+    //         clearInterval(refreshInterval);
+    //     } else {
+    //         refreshInterval = setInterval(function() {
+    //             location.reload();
+    //         }, 5000);
+    //     }
+    // });
 </script>
 </body>
 </html>
