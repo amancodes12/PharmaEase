@@ -27,8 +27,6 @@ public class OrderController {
     public String listOrders(@RequestParam(required = false) String status, Model model) {
         try {
             System.out.println("🔄 Loading orders page - fetching fresh orders from database");
-            // Always get fresh orders directly from repository
-            // Customer and pharmacist are now EAGER, so they'll be loaded automatically
             List<Orders> orders = orderService.getAllOrders();
             System.out.println("📋 Orders page - Total orders fetched: " + orders.size());
             

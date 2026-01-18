@@ -127,16 +127,13 @@ public class ReportService {
         LocalDateTime weekStart = LocalDate.now().minusDays(7).atStartOfDay();
         LocalDateTime monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay();
 
-        // Get ALL orders and filter in memory - more reliable than complex queries
-        // Use a fresh query to ensure we see all committed data
-        // Use findAllWithRelations to eagerly load customer and pharmacist
-        List<Orders> allOrders = orderRepository.findAllWithRelations();
-        List<Orders> completedOrders = allOrders.stream()
-                .filter(o -> o.getStatus() == Orders.OrderStatus.COMPLETED)
-                .collect(Collectors.toList());
-        
-        System.out.println("📊 Dashboard Query - Total orders in DB: " + allOrders.size() + ", COMPLETED: " + completedOrders.size());
-        
+        // Query directly from database
+        List<Orders> completedOrders = (List<Orders>) entityManager.createQuery(
+                "SELECT o FROM Orders o WHERE o.status = 'COMPLETED' ORDER BY o.createdAt DESC",
+                Orders.class).getResultList();
+
+        System.out.println("📊 Dashboard Query - COMPLETED orders: " + completedOrders.size());
+
         // Log all completed orders for debugging
         if (!completedOrders.isEmpty()) {
             System.out.println("📊 COMPLETED Orders Details:");
