@@ -175,9 +175,11 @@ http://localhost:8080/pharmaease
 ---
 
 ## 👤 **Author**
-
+**Krishna Yadav**
 **Aman Yadav**
 Final-Year IT Student
 
+* GitHub: [https://github.com/krishna7275](https://github.com/krishna7275)
+* LinkedIn: [https://www.linkedin.com/in/krishna7275](https://www.linkedin.com/in//krishna7275)
 * GitHub: [https://github.com/amancodes12](https://github.com/amancodes12)
 * LinkedIn: [https://www.linkedin.com/in/aman-yadav-01040534b/](https://www.linkedin.com/in/aman-yadav-01040534b/)
