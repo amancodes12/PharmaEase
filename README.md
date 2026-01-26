@@ -175,7 +175,7 @@ http://localhost:8080/pharmaease
 ---
 
 ## 👤 **Author**
-**Krishna Yadav**
+**Krishna Yadav**,
 **Aman Yadav**
 Final-Year IT Student
 
