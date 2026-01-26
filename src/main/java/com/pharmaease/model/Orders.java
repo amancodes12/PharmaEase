@@ -3,6 +3,7 @@ package com.pharmaease.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -16,6 +17,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"customer", "pharmacist", "orderItems", "invoice"})
 public class Orders {
 
     @Id
@@ -59,7 +61,7 @@ public class Orders {
     @Column(nullable = false)
     private Boolean paid = false;
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Invoice invoice;
 
     @CreationTimestamp

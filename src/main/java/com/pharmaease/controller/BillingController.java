@@ -98,6 +98,8 @@ public class BillingController {
                             item.setMedicine(medicine);
                             item.setQuantity(quantity);
                             item.setUnitPrice(unitPrice);
+                            item.setOrder(order);
+                            item.setTotalPrice(item.getUnitPrice().multiply(unitPrice));
                             orderItems.add(item);
                             System.out.println("Added item: " + medicine.getName() + " x " + quantity);
                         }
@@ -129,10 +131,24 @@ public class BillingController {
             System.out.println("Status: " + createdOrder.getStatus());
             System.out.println("Total Amount: ₹" + createdOrder.getTotalAmount());
 
-            // Verify order was saved
+            // CRITICAL: Get the order ID and verify it exists before redirecting
             Long orderId = createdOrder.getId();
-            System.out.println("✅ Redirecting to invoice for order ID: " + orderId);
+            if (orderId == null) {
+                throw new RuntimeException("Order ID is null after creation");
+            }
+            
+            // Verify order exists in database before redirecting
+            try {
+                Orders verifiedOrder = orderService.getOrderById(orderId);
+                System.out.println("✅ Verified order exists: " + verifiedOrder.getOrderNumber());
+                System.out.println("✅ Order status: " + verifiedOrder.getStatus());
+                System.out.println("✅ Order has " + (verifiedOrder.getOrderItems() != null ? verifiedOrder.getOrderItems().size() : 0) + " items");
+            } catch (Exception e) {
+                System.err.println("⚠️ Warning: Could not verify order immediately: " + e.getMessage());
+                // Continue anyway - might be a timing issue
+            }
 
+            System.out.println("✅ Redirecting to invoice for order ID: " + orderId);
             redirectAttributes.addFlashAttribute("success", "Sale completed successfully! Order #" + createdOrder.getOrderNumber());
             return "redirect:/billing/invoice/" + orderId;
 
@@ -145,9 +161,32 @@ public class BillingController {
     }
 
     @GetMapping("/invoice/{orderId}")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public String viewInvoice(@PathVariable Long orderId, Model model, RedirectAttributes redirectAttributes) {
         try {
             Orders order = orderService.getOrderById(orderId);
+            
+            // CRITICAL: Force initialization of all lazy collections before transaction closes
+            // Access orderItems and their nested relationships
+            if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()) {
+                for (OrderItem item : order.getOrderItems()) {
+                    // Force initialization of medicine relationship
+                    if (item.getMedicine() != null) {
+                        item.getMedicine().getName(); // Trigger lazy load
+                    }
+                }
+                // Also get size to ensure collection is fully loaded
+                int size = order.getOrderItems().size();
+                System.out.println("✅ Initialized " + size + " order items for invoice");
+            }
+            
+            // Initialize customer and pharmacist if needed
+            if (order.getCustomer() != null) {
+                order.getCustomer().getName();
+            }
+            if (order.getPharmacist() != null) {
+                order.getPharmacist().getName();
+            }
             
             try {
                 Invoice invoice = billingService.getInvoiceByOrder(order);

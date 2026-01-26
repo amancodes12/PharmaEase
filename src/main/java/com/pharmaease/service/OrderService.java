@@ -87,7 +87,7 @@ public class OrderService {
             }
             orderItemRepository.saveAndFlush(item);
         }
-        System.out.println("✅ Order items saved: " + savedOrder.getOrderItems().size());
+        System.out.println("✅ Order items saved: " + order.getOrderItems().size());
 
         // Update inventory (deduct stock) - only if order is completed
         if (savedOrder.getStatus() == Orders.OrderStatus.COMPLETED) {
@@ -114,8 +114,22 @@ public class OrderService {
             }
         }
 
+        // Force flush to ensure order is persisted immediately
+        entityManager.flush();
+        
+        // Refresh to get latest state including invoice
+        entityManager.refresh(savedOrder);
+        
+        // Ensure orderItems are loaded
+        if (savedOrder.getOrderItems() != null) {
+            savedOrder.getOrderItems().size(); // Force initialization
+        }
+        
         // Return the saved and flushed order
         System.out.println("✅ Final order status: " + savedOrder.getStatus() + ", Total: ₹" + savedOrder.getTotalAmount() + ", Created: " + savedOrder.getCreatedAt());
+        System.out.println("✅ Order ID: " + savedOrder.getId());
+        System.out.println("✅ Order has invoice: " + (savedOrder.getInvoice() != null ? savedOrder.getInvoice().getInvoiceNumber() : "null"));
+        System.out.println("✅ Order has " + (savedOrder.getOrderItems() != null ? savedOrder.getOrderItems().size() : 0) + " items");
 
         return savedOrder;
     }
@@ -294,6 +308,7 @@ public class OrderService {
         Optional<Invoice> existingInvoice = invoiceRepository.findByOrder(order);
         if (existingInvoice.isPresent()) {
             // Invoice already exists, don't create duplicate
+            System.out.println("ℹ️ Invoice already exists for order: " + order.getOrderNumber());
             return;
         }
         
@@ -307,7 +322,14 @@ public class OrderService {
         BigDecimal change = paid.subtract(total);
         invoice.setChangeGiven(change.max(BigDecimal.ZERO));
 
-        invoiceRepository.save(invoice);
+        // Save invoice and flush to ensure it's persisted
+        Invoice savedInvoice = invoiceRepository.saveAndFlush(invoice);
+        
+        // Set the invoice on the order to maintain bidirectional relationship
+        order.setInvoice(savedInvoice);
+        orderRepository.saveAndFlush(order);
+        
+        System.out.println("✅ Invoice generated: " + savedInvoice.getInvoiceNumber() + " for order: " + order.getOrderNumber());
     }
 
     private String generateInvoiceNumber() {

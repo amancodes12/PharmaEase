@@ -44,23 +44,29 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
     
     // Eagerly fetch customer and pharmacist to avoid lazy loading issues
     // Using EntityGraph for better performance and to avoid DISTINCT issues
-    @EntityGraph(attributePaths = {"customer", "pharmacist", "orderItems"})
-    @Query("SELECT o FROM Orders o ORDER BY o.createdAt DESC")
+    // Note: orderItems are loaded via cascade, so we don't need to include them in EntityGraph
+    @EntityGraph(attributePaths = {"customer", "pharmacist", "invoice"})
+    @Query("SELECT DISTINCT o FROM Orders o ORDER BY o.createdAt DESC")
     List<Orders> findAllWithRelations();
     
-    @EntityGraph(attributePaths = {"customer", "pharmacist", "orderItems"})
-    @Query("SELECT o FROM Orders o WHERE o.status = :status ORDER BY o.createdAt DESC")
+    @EntityGraph(attributePaths = {"customer", "pharmacist", "invoice"})
+    @Query("SELECT DISTINCT o FROM Orders o WHERE o.status = :status ORDER BY o.createdAt DESC")
     List<Orders> findByStatusWithRelations(@Param("status") Orders.OrderStatus status);
     
-    @EntityGraph(attributePaths = {"customer", "pharmacist", "orderItems"})
-    @Query("SELECT o FROM Orders o WHERE o.createdAt BETWEEN :start AND :end ORDER BY o.createdAt DESC")
+    @EntityGraph(attributePaths = {"customer", "pharmacist", "invoice"})
+    @Query("SELECT DISTINCT o FROM Orders o WHERE o.createdAt BETWEEN :start AND :end ORDER BY o.createdAt DESC")
     List<Orders> findByCreatedAtBetweenWithRelations(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
     
-    @EntityGraph(attributePaths = {"customer", "pharmacist", "orderItems"})
-    @Query("SELECT o FROM Orders o WHERE o.id = :id")
+    @Query("SELECT DISTINCT o FROM Orders o " +
+           "LEFT JOIN FETCH o.customer " +
+           "LEFT JOIN FETCH o.pharmacist " +
+           "LEFT JOIN FETCH o.invoice " +
+           "LEFT JOIN FETCH o.orderItems oi " +
+           "LEFT JOIN FETCH oi.medicine " +
+           "WHERE o.id = :id")
     Optional<Orders> findByIdWithRelations(@Param("id") Long id);
     
-    @EntityGraph(attributePaths = {"customer", "pharmacist", "orderItems"})
+    @EntityGraph(attributePaths = {"customer", "pharmacist", "invoice"})
     @Query("SELECT o FROM Orders o WHERE o.orderNumber = :orderNumber")
     Optional<Orders> findByOrderNumberWithRelations(@Param("orderNumber") String orderNumber);
 }
