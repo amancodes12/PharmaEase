@@ -18,9 +18,17 @@ public class DashboardController {
 
     @GetMapping
     public String dashboard(Model model) {
-        // Get fresh statistics every time dashboard is loaded
-        Map<String, Object> stats = reportService.getDashboardStatistics();
-        model.addAttribute("stats", stats);
-        return "dashboards";  // Template file is dashboards.html
+        try {
+            System.out.println("🔄 Loading dashboard - fetching fresh statistics from database");
+            Map<String, Object> stats = reportService.getDashboardStatistics();
+            model.addAttribute("stats", stats);
+            System.out.println("✅ Dashboard loaded successfully");
+            return "dashboards";
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("❌ Error loading dashboard: " + e.getMessage());
+            model.addAttribute("error", "Error loading dashboard: " + e.getMessage());
+            return "dashboards";
+        }
     }
 }

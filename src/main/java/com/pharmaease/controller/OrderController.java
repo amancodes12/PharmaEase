@@ -26,8 +26,7 @@ public class OrderController {
     @Transactional(readOnly = true)
     public String listOrders(@RequestParam(required = false) String status, Model model) {
         try {
-            // Always get fresh orders directly from repository
-            // Customer and pharmacist are now EAGER, so they'll be loaded automatically
+            System.out.println("🔄 Loading orders page - fetching fresh orders from database");
             List<Orders> orders = orderService.getAllOrders();
             System.out.println("📋 Orders page - Total orders fetched: " + orders.size());
             
@@ -51,9 +50,11 @@ public class OrderController {
             });
             
             // Log order details
+            System.out.println("📋 Total orders to display: " + orders.size());
             orders.forEach(o -> System.out.println("  - Order #" + o.getOrderNumber() + " | Status: " + o.getStatus() + " | Amount: ₹" + o.getTotalAmount() + " | Date: " + o.getCreatedAt()));
             
             model.addAttribute("orders", orders);
+            System.out.println("✅ Orders page loaded successfully");
             return "orders";
             
         } catch (Exception e) {

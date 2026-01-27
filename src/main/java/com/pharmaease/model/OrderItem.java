@@ -3,6 +3,7 @@ package com.pharmaease.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"order", "medicine", "batch"})
 public class OrderItem {
 
     @Id
@@ -26,7 +28,7 @@ public class OrderItem {
     @JoinColumn(name = "medicine_id", nullable = false)
     private Medicine medicine;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "batch_id")
     private StockBatch batch;
 

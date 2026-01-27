@@ -87,7 +87,7 @@ public class OrderService {
             }
             orderItemRepository.saveAndFlush(item);
         }
-        System.out.println("✅ Order items saved: " + savedOrder.getOrderItems().size());
+        System.out.println("✅ Order items saved: " + order.getOrderItems().size());
 
         // Update inventory (deduct stock) - only if order is completed
         if (savedOrder.getStatus() == Orders.OrderStatus.COMPLETED) {
@@ -114,23 +114,24 @@ public class OrderService {
             }
         }
 
-        // Force commit by flushing entity manager and clearing cache
-        orderRepository.flush();
+        // Force flush to ensure order is persisted immediately
         entityManager.flush();
-        entityManager.clear(); // Clear persistence context to force fresh reads
         
-        // Refresh order to get invoice relationship and ensure it's persisted
-        Orders refreshedOrder = orderRepository.findById(savedOrder.getId()).orElse(savedOrder);
-        System.out.println("✅ Final order status: " + refreshedOrder.getStatus() + ", Total: ₹" + refreshedOrder.getTotalAmount() + ", Created: " + refreshedOrder.getCreatedAt());
+        // Refresh to get latest state including invoice
+        entityManager.refresh(savedOrder);
         
-        // Verify the order is actually in the database with COMPLETED status
-        // Use a fresh query after clearing the entity manager
-        entityManager.clear();
-        List<Orders> completedOrders = orderRepository.findByStatus(Orders.OrderStatus.COMPLETED);
-        System.out.println("✅ Total COMPLETED orders in DB (after clear): " + completedOrders.size());
-        completedOrders.forEach(o -> System.out.println("  - Order #" + o.getOrderNumber() + " | Status: " + o.getStatus() + " | Amount: ₹" + o.getTotalAmount()));
+        // Ensure orderItems are loaded
+        if (savedOrder.getOrderItems() != null) {
+            savedOrder.getOrderItems().size(); // Force initialization
+        }
         
-        return refreshedOrder;
+        // Return the saved and flushed order
+        System.out.println("✅ Final order status: " + savedOrder.getStatus() + ", Total: ₹" + savedOrder.getTotalAmount() + ", Created: " + savedOrder.getCreatedAt());
+        System.out.println("✅ Order ID: " + savedOrder.getId());
+        System.out.println("✅ Order has invoice: " + (savedOrder.getInvoice() != null ? savedOrder.getInvoice().getInvoiceNumber() : "null"));
+        System.out.println("✅ Order has " + (savedOrder.getOrderItems() != null ? savedOrder.getOrderItems().size() : 0) + " items");
+
+        return savedOrder;
     }
 
     public Orders completeOrder(Long orderId, BigDecimal amountPaid) {
@@ -307,6 +308,7 @@ public class OrderService {
         Optional<Invoice> existingInvoice = invoiceRepository.findByOrder(order);
         if (existingInvoice.isPresent()) {
             // Invoice already exists, don't create duplicate
+            System.out.println("ℹ️ Invoice already exists for order: " + order.getOrderNumber());
             return;
         }
         
@@ -320,7 +322,14 @@ public class OrderService {
         BigDecimal change = paid.subtract(total);
         invoice.setChangeGiven(change.max(BigDecimal.ZERO));
 
-        invoiceRepository.save(invoice);
+        // Save invoice and flush to ensure it's persisted
+        Invoice savedInvoice = invoiceRepository.saveAndFlush(invoice);
+        
+        // Set the invoice on the order to maintain bidirectional relationship
+        order.setInvoice(savedInvoice);
+        orderRepository.saveAndFlush(order);
+        
+        System.out.println("✅ Invoice generated: " + savedInvoice.getInvoiceNumber() + " for order: " + order.getOrderNumber());
     }
 
     private String generateInvoiceNumber() {
