@@ -2,138 +2,380 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Details - PharmaEase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
+                    colors: {
+                        mint: { 50: '#f0fdf7', 100: '#dcfce9', 200: '#bbf7d6', 300: '#86efb0', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+                        teal: { 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .navbar { background: #667eea; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .navbar h1 { font-size: 24px; }
-        .navbar nav a { color: white; text-decoration: none; margin: 0 15px; font-weight: 500; }
-        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
-        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .card h3 { margin-bottom: 20px; color: #333; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .info-item { padding: 10px; background: #f9f9f9; border-radius: 5px; }
-        .info-item label { font-weight: 600; color: #666; display: block; margin-bottom: 5px; }
-        .info-item span { color: #333; font-size: 16px; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; }
-        th { background: #f9f9f9; font-weight: 600; }
-        .status-badge { padding: 6px 12px; border-radius: 4px; font-weight: 600; display: inline-block; }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-completed { background: #d4edda; color: #155724; }
-        .status-cancelled { background: #f8d7da; color: #721c24; }
-        .totals { text-align: right; margin-top: 20px; }
-        .totals div { margin: 10px 0; font-size: 16px; }
-        .total-amount { font-size: 24px; font-weight: bold; color: #667eea; padding-top: 10px; border-top: 2px solid #667eea; }
-        .btn { padding: 10px 20px; color: white; text-decoration: none; border-radius: 5px; display: inline-block; margin: 5px; border: none; cursor: pointer; font-weight: 600; }
-        .btn-primary { background: #667eea; }
-        .btn-success { background: #28a745; }
-        .btn-danger { background: #dc3545; }
-        .actions { margin-top: 20px; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
-<body>
-<nav class="navbar">
-    <h1>PharmaEase</h1>
-    <nav>
-        <a th:href="@{/dashboard}">Dashboard</a>
-        <a th:href="@{/medicines}">Medicines</a>
-        <a th:href="@{/suppliers}">Suppliers</a>
-        <a th:href="@{/inventory}">Inventory</a>
-        <a th:href="@{/orders}">Orders</a>
-        <a th:href="@{/billing}">Billing</a>
-        <a th:href="@{/reports}">Reports</a>
-        <a th:href="@{/logout}">Logout</a>
-    </nav>
+<body class="bg-slate-50 font-sans antialiased">
+<!-- Top Navbar -->
+<nav class="fixed left-0 right-0 top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-xl">
+    <div class="flex h-16 items-center justify-between px-6">
+        <div class="flex items-center gap-4">
+            <button onclick="toggleSidebar()" class="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 lg:hidden">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-mint-500">
+                    <span class="text-xl">💊</span>
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="text-lg font-bold text-slate-900">PharmaEase</h1>
+                    <p class="text-xs text-slate-500">Pharmacy Management</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button class="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+            </button>
+
+            <div class="h-8 w-px bg-slate-200"></div>
+
+            <div class="flex items-center gap-3">
+                <div class="hidden text-right sm:block">
+                    <p class="text-sm font-semibold text-slate-900">Pharmacist</p>
+                    <p class="text-xs text-slate-500">Admin</p>
+                </div>
+                <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-mint-500 text-sm font-semibold text-white">
+                    P
+                </div>
+            </div>
+        </div>
+    </div>
 </nav>
 
-<div class="container">
-    <div class="card">
-        <h3>Order Details</h3>
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 -translate-x-full border-r border-slate-200 bg-white transition-transform duration-300 lg:translate-x-0">
+    <div class="flex h-full flex-col">
+        <div class="flex-1 overflow-y-auto p-4">
+            <div class="space-y-1">
+                <a th:href="@{/dashboard}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
 
-        <div class="info-grid">
-            <div class="info-item">
-                <label>Order Number:</label>
-                <span th:text="${order.orderNumber}">ORD-001</span>
+                <a th:href="@{/medicines}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                    <span>Medicines</span>
+                </a>
+
+                <a th:href="@{/suppliers}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span>Suppliers</span>
+                </a>
+
+                <a th:href="@{/inventory}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    <span>Inventory</span>
+                </a>
+
+                <a th:href="@{/orders}" class="flex items-center gap-3 rounded-lg bg-gradient-to-r from-teal-500 to-mint-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-500/30">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                    <span>Orders</span>
+                </a>
+
+                <a th:href="@{/billing}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+                    </svg>
+                    <span>Billing</span>
+                </a>
+
+                <a th:href="@{/reports}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span>Reports</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-200 p-4">
+            <a th:href="@{/logout}" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+</aside>
+
+<!-- Overlay for mobile -->
+<div id="overlay" class="fixed inset-0 z-30 bg-slate-900/50 opacity-0 backdrop-blur-sm transition-opacity duration-300 lg:hidden" style="pointer-events: none;" onclick="toggleSidebar()"></div>
+
+<!-- Main Content -->
+<main class="lg:pl-64 pt-16">
+    <div class="p-6 space-y-6">
+        <!-- Header -->
+        <div class="fade-in rounded-2xl bg-slate-50 p-7 border border-slate-200">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-1">
+                        <svg class="h-7 w-7 text-slate-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                        </svg>
+                        <h2 class="text-2xl font-bold text-slate-900">Order Details</h2>
+                    </div>
+                    <p class="text-sm text-slate-600">
+                        Order <span class="font-semibold" th:text="${order.orderNumber}">ORD-001</span>
+                        · <span th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy, HH:mm')}">Date</span>
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span th:if="${order.status.name() == 'PENDING'}"
+                          class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                        </svg>
+                        PENDING
+                    </span>
+                    <span th:if="${order.status.name() == 'COMPLETED'}"
+                          class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        COMPLETED
+                    </span>
+                    <span th:if="${order.status.name() == 'CANCELLED'}"
+                          class="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        CANCELLED
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two-column layout -->
+        <div class="grid gap-6">
+            <!-- Order / customer info -->
+            <div class="space-y-6">
+                <!-- Order summary -->
+                <div class="fade-in rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <h3 class="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
+                        <span class="h-6 w-1 rounded-full bg-teal-500"></span>
+                        Order Summary
+                    </h3>
+                    <dl class="space-y-3 text-sm">
+                        <div class="flex items-center justify-between">
+                            <dt class="text-slate-500">Order Number</dt>
+                            <dd class="font-medium text-slate-900" th:text="${order.orderNumber}">ORD-001</dd>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <dt class="text-slate-500">Customer</dt>
+                            <dd class="font-medium text-slate-900" th:text="${order.customer != null ? order.customer.name : 'Walk-in Customer'}">Customer Name</dd>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <dt class="text-slate-500">Pharmacist</dt>
+                            <dd class="font-medium text-slate-900" th:text="${order.pharmacist.name}">Pharmacist Name</dd>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <dt class="text-slate-500">Payment Method</dt>
+                            <dd class="font-medium text-slate-900" th:text="${order.paymentMethod}">CASH</dd>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <dt class="text-slate-500">Order Date</dt>
+                            <dd class="font-medium text-slate-900" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy, HH:mm')}">Date</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <!-- Totals -->
+                <div class="fade-in rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <h3 class="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
+                        <span class="h-6 w-1 rounded-full bg-teal-500"></span>
+                        Billing Summary
+                    </h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500">Subtotal</span>
+                            <span class="font-medium text-slate-900">
+                                ₹<span th:text="${order.subtotal}">0.00</span>
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500">Tax</span>
+                            <span class="font-medium text-slate-900">
+                                ₹<span th:text="${order.tax}">0.00</span>
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500">Discount</span>
+                            <span class="font-medium text-emerald-700">
+                                -₹<span th:text="${order.discount}">0.00</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-4 border-t border-dashed border-slate-200 pt-4">
+                        <div class="flex items-center justify-between text-base font-semibold text-slate-900">
+                            <span>Total Amount</span>
+                            <span class="text-xl text-teal-600">
+                                ₹<span th:text="${order.totalAmount}">0.00</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="info-item">
-                <label>Status:</label>
-                <span th:if="${order.status.name() == 'PENDING'}" class="status-badge status-pending">PENDING</span>
-                <span th:if="${order.status.name() == 'COMPLETED'}" class="status-badge status-completed">COMPLETED</span>
-                <span th:if="${order.status.name() == 'CANCELLED'}" class="status-badge status-cancelled">CANCELLED</span>
-            </div>
+            <!-- Right: Items + actions -->
+            <div class="space-y-6">
+                <!-- Items card -->
+                <div class="fade-in rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="mb-4 flex items-center justify-between gap-4">
+                        <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Order Items</h3>
+                        <p class="text-xs text-slate-400" th:text="${#lists.size(order.orderItems)} + ' items'">0 items</p>
+                    </div>
+                    <div class="overflow-hidden rounded-xl border border-slate-200">
+                        <table class="min-w-full divide-y divide-slate-200 text-sm">
+                            <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Medicine</th>
+                                <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Quantity</th>
+                                <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Unit Price</th>
+                                <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Total</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 bg-white">
+                            <tr th:each="item : ${order.orderItems}" class="hover:bg-slate-50/60">
+                                <td class="px-4 py-3">
+                                    <div class="flex flex-col">
+                                        <span class="font-medium text-slate-900" th:text="${item.medicine.name}">Medicine Name</span>
+                                        <span class="text-xs text-slate-500" th:text="${item.medicine.medicineCode}">CODE</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-right text-slate-900" th:text="${item.quantity}">1</td>
+                                <td class="px-4 py-3 text-right text-slate-900">
+                                    ₹<span th:text="${item.unitPrice}">0.00</span>
+                                </td>
+                                <td class="px-4 py-3 text-right font-semibold text-slate-900">
+                                    ₹<span th:text="${item.totalPrice}">0.00</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-            <div class="info-item">
-                <label>Customer:</label>
-                <span th:text="${order.customer != null ? order.customer.name : 'Walk-in Customer'}">Customer Name</span>
-            </div>
+                <!-- Actions -->
+                <div class="fade-in flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex items-center gap-2 text-sm text-slate-500">
+                        <a th:href="@{/orders}" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                            Back to Orders
+                        </a>
+                    </div>
 
-            <div class="info-item">
-                <label>Pharmacist:</label>
-                <span th:text="${order.pharmacist.name}">Pharmacist Name</span>
-            </div>
+                    <div class="flex flex-wrap items-center gap-3 justify-end">
+                        <!-- Pending actions -->
+                        <span th:if="${order.status.name() == 'PENDING'}" class="flex flex-wrap items-center gap-3">
+                            <form th:action="@{/orders/complete/{id}(id=${order.id})}" method="post" class="flex items-center gap-2">
+                                <input
+                                        type="number"
+                                        name="amountPaid"
+                                        placeholder="Amount Paid"
+                                        step="0.01"
+                                        required
+                                        class="w-40 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                                >
+                                <button
+                                        type="submit"
+                                        class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-teal-600 to-mint-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-teal-500/30 transition-all hover:shadow-xl hover:shadow-teal-500/40">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    Complete Order
+                                </button>
+                            </form>
 
-            <div class="info-item">
-                <label>Payment Method:</label>
-                <span th:text="${order.paymentMethod}">CASH</span>
-            </div>
+                            <form th:action="@{/orders/cancel/{id}(id=${order.id})}" method="post">
+                                <button
+                                        type="submit"
+                                        onclick="return confirm('Are you sure you want to cancel this order?')"
+                                        class="inline-flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-100 hover:border-rose-300">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Cancel Order
+                                </button>
+                            </form>
+                        </span>
 
-            <div class="info-item">
-                <label>Order Date:</label>
-                <span th:text="${#temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm')}">Date</span>
+                        <!-- Completed: show invoice -->
+                        <span th:if="${order.status.name() == 'COMPLETED'}">
+                            <a th:href="@{/billing/invoice/{orderId}(orderId=${order.id})}"
+                               class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-500/40 transition-all hover:bg-emerald-700 hover:shadow-xl hover:shadow-emerald-500/50">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 14l2 2 4-4m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                View Invoice
+                            </a>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+</main>
 
-    <div class="card">
-        <h3>Order Items</h3>
-        <table>
-            <thead>
-            <tr>
-                <th>Medicine</th>
-                <th>Quantity</th>
-                <th>Unit Price</th>
-                <th>Total Price</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="item : ${order.orderItems}">
-                <td th:text="${item.medicine.name}">Medicine Name</td>
-                <td th:text="${item.quantity}">1</td>
-                <td>₹<span th:text="${item.unitPrice}">0.00</span></td>
-                <td>₹<span th:text="${item.totalPrice}">0.00</span></td>
-            </tr>
-            </tbody>
-        </table>
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
 
-        <div class="totals">
-            <div><strong>Subtotal:</strong> ₹<span th:text="${order.subtotal}">0.00</span></div>
-            <div><strong>Tax:</strong> ₹<span th:text="${order.tax}">0.00</span></div>
-            <div><strong>Discount:</strong> ₹<span th:text="${order.discount}">0.00</span></div>
-            <div class="total-amount"><strong>Total Amount:</strong> ₹<span th:text="${order.totalAmount}">0.00</span></div>
-        </div>
-    </div>
+        sidebar.classList.toggle('-translate-x-full');
 
-    <div class="actions">
-        <a th:href="@{/orders}" class="btn btn-primary">Back to Orders</a>
-
-        <span th:if="${order.status.name() == 'PENDING'}">
-                <form th:action="@{/orders/complete/{id}(id=${order.id})}" method="post" style="display: inline;">
-                    <input type="number" name="amountPaid" placeholder="Amount Paid" step="0.01" required style="padding: 10px; margin-right: 5px;">
-                    <button type="submit" class="btn btn-success">Complete Order</button>
-                </form>
-
-                <form th:action="@{/orders/cancel/{id}(id=${order.id})}" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this order?')">Cancel Order</button>
-                </form>
-            </span>
-
-        <span th:if="${order.status.name() == 'COMPLETED'}">
-                <a th:href="@{/billing/invoice/{orderId}(orderId=${order.id})}" class="btn btn-success">View Invoice</a>
-            </span>
-    </div>
-</div>
+        if (sidebar.classList.contains('-translate-x-full')) {
+            overlay.style.pointerEvents = 'none';
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('opacity-0');
+        } else {
+            overlay.style.pointerEvents = 'auto';
+            overlay.classList.remove('opacity-0');
+            overlay.classList.add('opacity-100');
+        }
+    }
+</script>
 </body>
 </html>
