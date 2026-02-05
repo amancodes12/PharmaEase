@@ -82,9 +82,13 @@ public class OrderService {
         // Save order items with proper relationships
         for (OrderItem item : order.getOrderItems()) {
             item.setOrder(savedOrder);
-            if (item.getTotalPrice() == null) {
-                item.setTotalPrice(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
-            }
+            // ALWAYS recalculate totalPrice to ensure correctness (unitPrice × quantity)
+            BigDecimal calculatedTotal = item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            item.setTotalPrice(calculatedTotal);
+            System.out.println("✅ OrderItem: " + (item.getMedicine() != null ? item.getMedicine().getName() : "Unknown") + 
+                             " | Qty: " + item.getQuantity() + 
+                             " | UnitPrice: ₹" + item.getUnitPrice() + 
+                             " | TotalPrice: ₹" + calculatedTotal);
             orderItemRepository.saveAndFlush(item);
         }
         System.out.println("✅ Order items saved: " + order.getOrderItems().size());

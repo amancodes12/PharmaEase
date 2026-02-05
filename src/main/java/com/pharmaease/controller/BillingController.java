@@ -99,7 +99,7 @@ public class BillingController {
                             item.setQuantity(quantity);
                             item.setUnitPrice(unitPrice);
                             item.setOrder(order);
-                            item.setTotalPrice(item.getUnitPrice().multiply(unitPrice));
+                            item.setTotalPrice(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
                             orderItems.add(item);
                             System.out.println("Added item: " + medicine.getName() + " x " + quantity);
                         }
