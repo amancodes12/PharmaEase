@@ -33,7 +33,7 @@ public class BillingController {
     }
 
     @PostMapping("/create-order")
-    public String createOrder(@RequestParam(required = false) Long customerId,
+    public String createOrder(@RequestParam(required = false) String customerId,
                               @RequestParam(required = false) String paymentMethod,
                               @RequestParam(required = false, defaultValue = "0") BigDecimal discount,
                               @RequestParam Map<String, String> allParams,
@@ -45,9 +45,16 @@ public class BillingController {
             // Create new order
             Orders order = new Orders();
             
+            // customerId comes from billing.html select:
+            // Walk-in uses value="" which must not be auto-converted to Long.
+            Long parsedCustomerId = null;
+            if (customerId != null && !customerId.isBlank()) {
+                parsedCustomerId = Long.parseLong(customerId);
+            }
+            
             // Set customer if provided
-            if (customerId != null && customerId > 0) {
-                Customer customer = customerService.getCustomerById(customerId);
+            if (parsedCustomerId != null && parsedCustomerId > 0) {
+                Customer customer = customerService.getCustomerById(parsedCustomerId);
                 order.setCustomer(customer);
                 System.out.println("Customer: " + customer.getName());
             } else {
